@@ -1,56 +1,128 @@
-# Maranatha University Academic Risk Detection System
+# MARDS — Maranatha Academic Risk Detection System
 
-An ML-powered platform that identifies students at risk of academic failure and delivers targeted interventions before end-of-semester results make the problem irreversible.
-
-Universities typically discover struggling students at the point of failure — after grades are published and options are limited. This system monitors behavioural signals continuously throughout the semester (attendance, engagement, quiz performance, assignment completion, mood) and surfaces at-risk students to lecturers and administrators while there is still time to act. It is designed for use across a full university deployment with three distinct user roles, real-time notifications, and an AI tutoring layer.
+> A production-grade ML system for early identification of at-risk students — XGBoost + SHAP explainability + FastAPI backend + React PWA, built for a Nigerian private university context.
 
 ---
 
-## What This System Does
+## Overview
 
-- **Early-warning ML detection** — XGBoost v4.0.0 trained on 24 behavioural features classifies students into five risk states (CRITICAL / STRUGGLING / STABLE / IMPROVING / THRIVING) with 0.997 accuracy; SHAP TreeExplainer produces per-student feature attribution for explainable predictions.
-- **Role-based dashboards** — Three fully distinct interfaces for students, lecturers, and admins (DAP > Dean > HOD hierarchy); 55+ pages across all roles, each surfacing the data relevant to that user's responsibilities.
-- **AI tutoring and interventions** — Anthropic Claude Sonnet 4 powers in-platform tutoring with a 40k-character context window, automatic quiz generation from course materials, and SHAP-driven plain-language recovery suggestions.
-- **Real-time notifications** — Server-Sent Events (sse-starlette) deliver live alerts to all connected clients; WebSocket chat enables direct student–lecturer communication; VAPID push notifications reach users when offline.
-- **Progressive Web App** — Installable on desktop and mobile via vite-plugin-pwa + Workbox service worker; background sync queues actions taken offline and replays them on reconnection.
+MARDS is a Progressive Web Application that combines machine learning prediction, SHAP-based explainability, and an AI tutoring layer to surface academically struggling students before they fail, giving lecturers and administrators the information they need to intervene early.
+
+Built as the first production AI system deployed at Maranatha University, Okota, Lagos (est. 2021).
 
 ---
 
-## Architecture at a Glance
+## The Problem
+
+In most Nigerian private universities, academic monitoring is reactive. Students are flagged only after end-of-semester results are published, by which point carry-overs, academic probation, or dropout may already be unavoidable. No continuous signal exists between admission and results.
+
+MARDS addresses this gap directly. It monitors behavioural and academic signals throughout the semester, attendance, platform engagement, assignment completion, quiz performance, mood and identifies at-risk students while there is still time to intervene. It is designed for full university deployment across three distinct user roles, with real-time notifications and an AI tutoring layer built in.
+
+---
+
+## System Architecture
 
 ```
-                        ┌─────────────────────────────────────┐
-                        │           Browser / PWA             │
-                        │   React 18 + Vite 4  (port 5173)   │
-                        └──────────────┬──────────────────────┘
-                                       │ HTTP / WebSocket / SSE
-                        ┌──────────────▼──────────────────────┐
-                        │              Nginx                   │
-                        │   (reverse proxy, TLS termination)  │
-                        └──────────────┬──────────────────────┘
-                                       │
-                        ┌──────────────▼──────────────────────┐
-                        │     FastAPI application             │
-                        │   200+ routes, JWT auth, SSE        │
-                        │         (port 8011)                 │
-                        └──────┬───────────────┬─────────────┘
-                               │               │
-               ┌───────────────▼───┐   ┌───────▼───────────────┐
-               │   PostgreSQL 15   │   │      Redis 5           │
-               │  50+ ORM models   │   │  Cache · Pub/Sub       │
-               └───────────────────┘   └───────┬───────────────┘
-                                               │
-                        ┌──────────────────────▼──────────────┐
-                        │         Celery 5.6                  │
-                        │  14 Beat jobs — risk compute,       │
-                        │  reminders, digests, escalation     │
-                        └──────────────────────┬──────────────┘
-                                               │
-                        ┌──────────────────────▼──────────────┐
-                        │      XGBoost ML Service             │
-                        │  24 features · SHAP explainability  │
-                        └─────────────────────────────────────┘
+                    ┌─────────────────────────────────────┐
+                    │           Browser / PWA             │
+                    │   React 18 + Vite 4  (port 5173)   │
+                    └──────────────┬──────────────────────┘
+                                   │ HTTP / WebSocket / SSE
+                    ┌──────────────▼──────────────────────┐
+                    │              Nginx                   │
+                    │   (reverse proxy, TLS termination)  │
+                    └──────────────┬──────────────────────┘
+                                   │
+                    ┌──────────────▼──────────────────────┐
+                    │        FastAPI application          │
+                    │   45+ routers, JWT auth, SSE        │
+                    │         (port 8011)                 │
+                    └──────┬───────────────┬─────────────┘
+                           │               │
+           ┌───────────────▼───┐   ┌───────▼───────────────┐
+           │   PostgreSQL 15   │   │      Redis 5           │
+           │  50+ ORM models   │   │  Cache · Pub/Sub       │
+           └───────────────────┘   └───────┬───────────────┘
+                                           │
+                    ┌──────────────────────▼──────────────┐
+                    │         Celery 5.6                  │
+                    │  14 Beat jobs — risk compute,       │
+                    │  reminders, digests, escalation     │
+                    └──────────────────────┬──────────────┘
+                                           │
+                    ┌──────────────────────▼──────────────┐
+                    │      XGBoost ML Service             │
+                    │  24 features · SHAP explainability  │
+                    └─────────────────────────────────────┘
 ```
+
+**Backend** — FastAPI (Python 3.11), 45+ routers, 50+ SQLAlchemy ORM models, PostgreSQL 15, Celery Beat (14 scheduled jobs across 3 queues), JWT authentication, bcrypt password hashing, Prometheus + Sentry observability, JSON structured logging with PII scrubbing.
+
+**Frontend** — React 18 PWA, 75+ pages across four portals (Student / Lecturer / Admin / Public), Server-Sent Events for real-time updates, 195KB initial bundle (gzipped).
+
+**ML Pipeline** — XGBoost v5.1.0 classifier trained on 1,330 synthetic student records across 22 departments and 6 behavioural archetypes, 24 engineered features, SHAP TreeExplainer for per-student prediction transparency.
+
+**AI Tutor** — Claude Sonnet integration with 40k character context window and circuit breaker (5-failure threshold, 60s cooldown).
+
+---
+
+## Model Performance
+
+| Metric | Value |
+|---|---|
+| Overall Accuracy | 95.19% |
+| Macro F1 Score | 0.8812 |
+| Not-Good-Standing Precision | 0.7792 |
+| Not-Good-Standing Recall | 0.8000 |
+| Not-Good-Standing F1 | 0.7895 |
+| Good-Standing F1 | 0.9728 |
+| True Negatives | 1,146 |
+| False Positives | 34 |
+| False Negatives | 30 |
+| True Positives | 120 |
+
+**Baseline comparisons:** Logistic Regression NGS-F1 0.7955 · Random Forest NGS-F1 0.6988
+
+---
+
+## Top Predictive Features (SHAP)
+
+| Feature | Importance |
+|---|---|
+| Semester GPA | 19.2% |
+| Mood Score | 11.7% |
+| Login Frequency | 5.9% |
+| Submission Time Ratio | 5.6% |
+| Attendance Trend | 5.4% |
+
+24 total features · 20 non-zero SHAP importance values
+
+---
+
+## Risk Classification
+
+MARDS uses compassionate, non-stigmatising language for all student-facing risk labels:
+
+| Internal State | Display Label |
+|---|---|
+| CRITICAL | Needs Extra Support |
+| HIGH | Needs Extra Support |
+| MEDIUM | Monitor Closely |
+| LOW | On Track |
+| GOOD | On Track |
+| THRIVING | On Track |
+
+---
+
+## Security
+
+- JWT access tokens (30-minute expiry)
+- bcrypt password hashing (cost factor 12)
+- SHA-256 session fingerprinting
+- Rate limiting via slowapi
+- Account lockout after 5 failed attempts (15-minute cooldown)
+- MFA via Fernet AES-128-CBC / PBKDF2
+- PII scrubbing on all structured logs
 
 ---
 
@@ -62,7 +134,6 @@ maranatha_risk_system/
 ├── frontend/           # React 18 + Vite 4 SPA
 ├── ml/                 # XGBoost training pipeline and model artifacts
 ├── docs/               # Full technical documentation
-├── redis/              # Redis binary (Windows dev only)
 ├── scripts/            # Seed and utility scripts
 ├── requirements.txt    # Python dependencies
 └── docker-compose.yml
@@ -73,16 +144,16 @@ maranatha_risk_system/
 ## Documentation Index
 
 | Document | Purpose |
-|----------|---------|
-| [docs/ARCHITECTURE.md](docs/ARCHITECTURE.md) | System design, component breakdown, and data flow |
-| [docs/API.md](docs/API.md) | Complete endpoint reference — auth flows, request/response payloads |
-| [docs/RISK_ENGINE.md](docs/RISK_ENGINE.md) | ML pipeline, 24-feature schema, model training, SHAP explainability |
-| [docs/AI_INTEGRATION.md](docs/AI_INTEGRATION.md) | Claude AI feature integration, prompt design, and fallback behaviour |
-| [docs/DEPLOYMENT.md](docs/DEPLOYMENT.md) | Dev setup, production deployment, Nginx configuration, Celery setup |
-| [docs/RUNBOOKS.md](docs/RUNBOOKS.md) | Operational procedures for 10 defined failure scenarios |
-| [backend/README.md](backend/README.md) | Backend internals, route modules, ORM model index |
-| [frontend/README.md](frontend/README.md) | Frontend page inventory, component conventions, build configuration |
-| [ml/README.md](ml/README.md) | Model training scripts, feature engineering, retraining instructions |
+|---|---|
+| `docs/ARCHITECTURE.md` | System design, component breakdown, and data flow |
+| `docs/API.md` | Complete endpoint reference — auth flows, request/response payloads |
+| `docs/RISK_ENGINE.md` | ML pipeline, 24-feature schema, model training, SHAP explainability |
+| `docs/AI_INTEGRATION.md` | Claude AI feature integration, prompt design, and fallback behaviour |
+| `docs/DEPLOYMENT.md` | Dev setup, production deployment, Nginx configuration, Celery setup |
+| `docs/RUNBOOKS.md` | Operational procedures for 10 defined failure scenarios |
+| `backend/README.md` | Backend internals, route modules, ORM model index |
+| `frontend/README.md` | Frontend page inventory, component conventions, build configuration |
+| `ml/README.md` | Model training scripts, feature engineering, retraining instructions |
 
 ---
 
@@ -100,7 +171,7 @@ maranatha_risk_system/
 ```bash
 # Python dependencies
 python -m venv venv
-source venv/Scripts/activate        # Windows: venv\Scripts\activate
+source venv/bin/activate        # Windows: venv\Scripts\activate
 pip install -r requirements.txt
 
 # Frontend dependencies
@@ -110,20 +181,20 @@ npm install
 
 ### 2. Configure environment
 
-Copy `backend/.env.example` to `backend/.env` and fill in the following critical variables:
+Copy `backend/.env.example` to `backend/.env` and fill in the required variables:
 
 ```
 DATABASE_URL=postgresql://user:password@localhost:5432/maranatha_risk_db
 SECRET_KEY=<64-char random string>
 ANTHROPIC_API_KEY=<your Anthropic API key>
-VAPID_PRIVATE_KEY=<VAPID private key for push notifications>
-VAPID_PUBLIC_KEY=<VAPID public key for push notifications>
+VAPID_PRIVATE_KEY=<VAPID private key>
+VAPID_PUBLIC_KEY=<VAPID public key>
 VAPID_CLAIMS_EMAIL=admin@example.com
 ```
 
 ### 3. Seed the database
 
-Run the seed scripts in this order — each depends on the previous:
+Run seed scripts in order — each depends on the previous:
 
 ```bash
 cd backend
@@ -135,15 +206,15 @@ python seed_risk.py      # Balanced risk scores
 
 ### 4. Start services
 
-Open four terminals and run each of the following:
+Open four terminals:
 
 ```bash
-# Terminal 1 — Redis (Windows dev binary)
-c:/Users/hp/Desktop/maranatha_risk_system/redis/redis-server.exe
+# Terminal 1 — Redis
+redis-server
 
 # Terminal 2 — FastAPI backend
 cd backend
-../venv/Scripts/uvicorn.exe main:app --reload --port 8011
+uvicorn main:app --reload --port 8011
 
 # Terminal 3 — Celery worker
 cd backend
@@ -152,11 +223,8 @@ celery -A celery_app worker -l info --pool=solo -Q default,email,ml
 # Terminal 4 — React frontend
 cd frontend
 npm run dev
-```
 
-Celery Beat (scheduled jobs) can be started in a fifth terminal if needed:
-
-```bash
+# Terminal 5 (optional) — Celery Beat scheduled jobs
 cd backend
 celery -A celery_app beat -l info
 ```
@@ -164,44 +232,63 @@ celery -A celery_app beat -l info
 ### 5. Access the system
 
 | Interface | URL |
-|-----------|-----|
+|---|---|
 | Frontend application | http://localhost:5173 |
 | FastAPI interactive docs | http://localhost:8011/docs |
 
-**Test credentials**
-
-| Role | Username format | Password |
-|------|----------------|----------|
-| Admin | `ADMIN/001` | `Admin@1234` |
-| Student | `{year}/{DEPT}/{seq}` e.g. `22/CSC/007` | `Student@123` |
+> See `docs/DEPLOYMENT.md` for test credentials and role-based access setup.
 
 ---
 
 ## Tech Stack
 
 | Layer | Technology |
-|-------|-----------|
-| Frontend framework | React 18 + Vite 4 (3212 modules, code-split with lazy loading) |
-| Styling | Tailwind CSS 3 — Navy/Gold design tokens, no runtime dark-mode classes |
+|---|---|
+| Frontend framework | React 18 + Vite 4 |
+| Styling | Tailwind CSS 3 |
 | Animations | Framer Motion |
 | Charts | Recharts |
-| Backend framework | FastAPI (Python 3.11), 200+ routes across 50+ ORM models |
+| Backend framework | FastAPI (Python 3.11) |
 | Database | PostgreSQL 15, SQLAlchemy ORM |
 | Cache / Queue | Redis 5, Celery 5.6 (14 Beat jobs) |
-| ML engine | XGBoost v4.0.0, SMOTE, SHAP TreeExplainer |
-| AI | Anthropic Claude Sonnet 4 |
-| Real-time | SSE via sse-starlette + WebSocket chat + Redis pub/sub |
+| ML engine | XGBoost v5.1.0, SMOTE, SHAP TreeExplainer |
+| AI | Anthropic Claude Sonnet |
+| Real-time | SSE via sse-starlette + WebSocket + Redis pub/sub |
 | Push notifications | VAPID via web-push, Workbox service worker |
-| Auth | JWT with JTI blacklisting, refresh token rotation, bcrypt, Fernet encryption |
+| Auth | JWT, bcrypt, Fernet AES-128-CBC / PBKDF2 |
+| Observability | Prometheus, Sentry |
 
 ---
 
-## Project Information
+## Codebase Scale
 
-| | |
-|-|-|
-| Author | Omeche Chimaobi Benedict |
-| Matriculation number | 22/CSC/007 |
-| Degree | B.Sc. Computer Science |
-| Institution | Maranatha University |
-| Academic year | 2025/2026 |
+| Component | Lines |
+|---|---|
+| Backend (Python) | ~33,700 |
+| Frontend (JSX/JS) | ~39,000 |
+| ML Pipeline (Python) | ~1,440 |
+| **Total** | **75,000+** |
+
+---
+
+## Academic Context
+
+This system was developed as a final-year dissertation project in the Department of Computer Science, Maranatha University, Okota, Lagos State, Nigeria, supervised by Dr. Obikwere.
+
+MARDS is, to the author's knowledge, the first production-grade AI-powered Early Warning System built specifically for a Nigerian private university. Western EWS implementations (Purdue PAR, Georgia State GPS, UNSW ATLAS) operate in resource-rich environments with established data infrastructure. This project demonstrates that meaningful early-intervention tooling is achievable in the Nigerian private university context using open-source ML, explainable AI, and thoughtful UX design, including compassionate risk labelling that avoids stigmatising language for students.
+
+---
+
+## Author
+
+**Omeche Chimaobi Benedict**
+BSc Computer Science · Maranatha University · Class of 2026
+Matric No: 22/CSC/007
+
+[LinkedIn](#) · [Portfolio](#) · [Email](#)
+
+---
+
+## License
+
+MIT License — see `LICENSE` for details.
