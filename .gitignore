@@ -10,6 +10,9 @@ backend/.env
 # Local planning notes
 _plan_raw.md
 
+# Windows reserved placeholder artifact
+NUL
+
 # Python
 __pycache__/
 *.py[cod]
