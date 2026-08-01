@@ -4,6 +4,12 @@
 *.env
 backend/.env
 
+# Local editor / agent files
+.claude/
+
+# Local planning notes
+_plan_raw.md
+
 # Python
 __pycache__/
 *.py[cod]
