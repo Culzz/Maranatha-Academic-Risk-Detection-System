@@ -1,0 +1,569 @@
+================================================================================
+    MARANATHA ACADEMIC RISK DETECTION SYSTEM - QUICK START GUIDE
+================================================================================
+
+This guide walks you through running the entire application step-by-step.
+Follow each section in order. Common errors and fixes are included.
+
+================================================================================
+PREREQUISITES CHECK
+================================================================================
+
+Before starting, verify you have everything installed. Open Command Prompt (cmd)
+and run each of these commands:
+
+1. Check Python version (need 3.11+):
+   python --version
+   
+   EXPECTED OUTPUT: Python 3.11.x or higher
+   
+   ERROR: 'python' is not recognized
+   FIX: Python is not installed or not in PATH
+       - Install Python 3.11+ from python.org
+       - During installation, CHECK "Add Python to PATH"
+       - Restart Command Prompt and try again
+
+2. Check Node.js version (need 18+):
+   node --version
+   npm --version
+   
+   EXPECTED OUTPUT: v18.x.x or higher
+   
+   ERROR: 'node' is not recognized
+   FIX: Node.js is not installed
+       - Install Node.js 18+ from nodejs.org
+       - Restart Command Prompt and try again
+
+3. Check PostgreSQL is running:
+   PostgreSQL must be running as a Windows service or process
+   - Open Services (services.msc) or Task Manager
+   - Look for "postgresql-x64" service
+   - If not running, start it
+   
+   ERROR: Cannot connect to PostgreSQL later
+   FIX: Start the PostgreSQL service:
+       - Press Windows+R, type "services.msc"
+       - Find "postgresql-x64-15" (or similar)
+       - Right-click → Start
+
+================================================================================
+STEP 1: NAVIGATE TO PROJECT FOLDER
+================================================================================
+
+Open Command Prompt and navigate to the project directory:
+
+cd c:\Users\hp\Desktop\maranatha_risk_system
+
+EXPECTED: You should be in the maranatha_risk_system folder
+
+================================================================================
+STEP 2: ACTIVATE PYTHON VIRTUAL ENVIRONMENT
+================================================================================
+
+Run this command to activate the Python virtual environment:
+
+venv\Scripts\activate
+
+EXPECTED OUTPUT: Your prompt should change to:
+(venv) C:\Users\hp\Desktop\maranatha_risk_system>
+
+ERROR: The system cannot find the specified path
+FIX: The venv folder doesn't exist. Create it:
+    python -m venv venv
+    venv\Scripts\activate
+    pip install -r requirements.txt
+
+ERROR: "activate" is not recognized
+FIX: Try using the batch file directly:
+    venv\Scripts\activate.bat
+
+================================================================================
+STEP 3: OPEN 5 SEPARATE COMMAND PROMPT WINDOWS
+================================================================================
+
+You need FIVE separate cmd windows running simultaneously:
+- Window 1: Redis server
+- Window 2: Backend (FastAPI)
+- Window 3: Celery worker
+- Window 4: Frontend (npm dev)
+- Window 5: Optional - Celery Beat scheduler
+
+To open a new Command Prompt window:
+- Press Windows+R
+- Type: cmd
+- Press Enter
+
+Or simply use Windows Terminal and open 5 new tabs.
+
+Each terminal will run a different service. Keep all 5 open.
+
+================================================================================
+WINDOW 1: START REDIS SERVER
+================================================================================
+
+Command:
+c:/Users/hp/Desktop/maranatha_risk_system/redis/redis-server.exe
+
+EXPECTED OUTPUT:
+[xxxxx] 08 Jun 14:34:02.672 # oO0OoO0OoO0Oo Redis is starting oO0OoO0OoO0Oo
+[xxxxx] 08 Jun 14:34:02.817 # Server initialized
+[xxxxx] 08 Jun 14:34:02.832 * Ready to accept connections
+
+ERROR: "Access Denied" or "Permission denied"
+FIX: Run Command Prompt as Administrator
+    - Press Windows+R
+    - Type: cmd
+    - Press Ctrl+Shift+Enter (runs as admin)
+
+ERROR: Port 6379 already in use
+FIX: Another Redis instance is running. Either:
+    a) Close the other instance
+    b) Or in a new cmd window, run: taskkill /F /IM redis-server.exe
+    Then restart Redis
+
+LEAVE THIS WINDOW RUNNING. DO NOT CLOSE IT.
+
+================================================================================
+WINDOW 2: START FASTAPI BACKEND
+================================================================================
+
+First, ensure you activated the virtual environment (from Step 2):
+venv\Scripts\activate
+
+Then navigate to backend folder and start the server:
+
+cd backend
+..\venv\Scripts\uvicorn.exe main:app --reload --port 8011
+
+EXPECTED OUTPUT:
+INFO:     Will watch for changes in these directories: [...]
+INFO:     Uvicorn running on http://127.0.0.1:8011 (Press CTRL+C to quit)
+INFO:     Started reloader process [xxxxx] using StatReload
+2026-06-08 14:34:48 [INFO] maranatha: Cache: using Redis backend
+
+ERROR: "uvicorn: command not found" or "No module named 'uvicorn'"
+FIX: Install dependencies from root directory:
+    cd .. (go back to project root)
+    pip install -r requirements.txt
+    cd backend
+    Then try the command again
+
+ERROR: Port 8011 already in use
+FIX: Another backend process is running. Kill it:
+    taskkill /F /IM python.exe
+    Wait 2 seconds
+    Try starting the backend again
+
+ERROR: "ModuleNotFoundError: No module named 'fastapi'"
+FIX: Virtual environment not activated or dependencies not installed
+    cd .. (go to project root)
+    venv\Scripts\activate
+    pip install -r requirements.txt
+    cd backend
+    Try again
+
+ERROR: "RuntimeError: could not determine a suitable PostgreSQL connection"
+FIX: PostgreSQL is not running or DATABASE_URL is not set
+    - Ensure PostgreSQL service is running (see Prerequisites)
+    - Check that backend/.env file exists with DATABASE_URL set
+
+LEAVE THIS WINDOW RUNNING. DO NOT CLOSE IT.
+
+================================================================================
+WINDOW 3: START CELERY WORKER
+================================================================================
+
+First, ensure you activated the virtual environment (from Step 2):
+venv\Scripts\activate
+
+Then navigate to backend folder and start Celery:
+
+cd backend
+..\venv\Scripts\python.exe -m celery -A celery_app worker -l info --pool=solo -Q default,email,ml
+
+EXPECTED OUTPUT (after 2-3 seconds):
+-------------- celery@DESKTOP-xxxxx v5.6.2 (recovery)
+--- ***** ----- 
+[config]
+.> app:         maranatha:0x...
+.> transport:   redis://localhost:6379/0
+[tasks]
+  . worker_tasks.admin_weekly_digest_task
+  . worker_tasks.send_email_task
+  ... (more tasks listed)
+[2026-06-08 14:35:54,644: INFO/MainProcess] celery@DESKTOP-xxxxx ready.
+
+ERROR: "No module named 'celery'"
+FIX: Dependencies not installed
+    cd .. (go to project root)
+    pip install -r requirements.txt
+    cd backend
+    Try again
+
+ERROR: "Cannot connect to redis://localhost:6379/0"
+FIX: Redis is not running
+    - Go back to Window 1
+    - Ensure Redis has started successfully
+    - Try the Celery command again
+
+ERROR: "ImportError: cannot import name 'celery_app'"
+FIX: Not in the correct directory or celery_app.py doesn't exist
+    - Make sure you're in the backend folder
+    - Verify celery_app.py exists in the backend directory
+
+LEAVE THIS WINDOW RUNNING. DO NOT CLOSE IT.
+
+================================================================================
+WINDOW 4: START FRONTEND DEV SERVER
+================================================================================
+
+In a NEW command prompt (NOT in a venv - this uses npm):
+
+cd c:\Users\hp\Desktop\maranatha_risk_system\frontend
+npm run dev
+
+EXPECTED OUTPUT (after 30-40 seconds):
+> maranatha-risk-frontend@3.0.0 dev
+> vite
+
+  VITE v4.5.14  ready in 40866 ms
+
+  ➜  Local:   http://localhost:5173/
+  ➜  Network: use --host to expose
+  ➜  press h to show help
+
+ERROR: "npm: command not found" or "'npm' is not recognized"
+FIX: Node.js/npm not installed
+    - Install Node.js 18+ from nodejs.org
+    - Restart Command Prompt
+    - Try npm run dev again
+
+ERROR: "Port 5173 already in use"
+FIX: Another Vite instance is running
+    taskkill /F /IM node.exe
+    Wait 2 seconds
+    cd frontend
+    npm run dev
+
+ERROR: "npm ERR! code ENOENT / npm ERR! enoent ENOENT: no such file or directory"
+FIX: node_modules not installed
+    cd frontend
+    npm install
+    npm run dev
+
+ERROR: "VITE v4.5.14 compiled failed"
+FIX: JavaScript/React compilation error. Check the error message and:
+    - Verify all React files are valid
+    - Check for syntax errors
+    - This usually fixes itself; wait and save a file to trigger rebuild
+
+LEAVE THIS WINDOW RUNNING. DO NOT CLOSE IT.
+
+================================================================================
+WINDOW 5 (OPTIONAL): START CELERY BEAT SCHEDULER
+================================================================================
+
+Celery Beat runs scheduled tasks (optional but recommended).
+
+First, ensure you activated the virtual environment:
+venv\Scripts\activate
+
+Then:
+
+cd backend
+..\venv\Scripts\python.exe -m celery -A celery_app beat -l info
+
+EXPECTED OUTPUT:
+LocalTime -> 2026-06-08 14:36:15.432632
+UTC -> 2026-06-08 14:36:15.432632
+[scheduler] Initial Scheduler Layout: [xxxxx pending schedules]
+
+If you see errors about Beat database or schedule.db:
+- They will be created automatically
+- It's safe to delete schedule.db and restart if corrupted
+
+ERROR: "Cannot connect to redis"
+FIX: Redis not running. Go to Window 1 and verify Redis started.
+
+This window is optional. Most features work without it, but scheduled tasks
+won't run. You can skip it if you only want to test the app manually.
+
+================================================================================
+VERIFY ALL SERVICES ARE RUNNING
+================================================================================
+
+Once all windows/tabs are started, verify everything is working:
+
+1. Check Redis Window 1:
+   - Should show "Ready to accept connections"
+
+2. Check Backend Window 2:
+   - Should show "Uvicorn running on http://127.0.0.1:8011"
+
+3. Check Celery Window 3:
+   - Should show "celery@DESKTOP-xxxxx ready."
+
+4. Check Frontend Window 4:
+   - Should show "VITE v4.5.14  ready in xxxxx ms"
+   - Should show "Local:   http://localhost:5173/"
+
+If you see all of these messages, congratulations! The app is running.
+
+================================================================================
+ACCESS THE APPLICATION
+================================================================================
+
+Open your web browser and navigate to:
+
+URL: http://localhost:5173
+
+You should see a login page.
+
+Frontend app URLs:
+- Main app: http://localhost:5173
+- FastAPI interactive docs: http://localhost:8011/docs (for developers)
+
+================================================================================
+TEST CREDENTIALS
+================================================================================
+
+Use these credentials to log in and test the app:
+
+ADMIN LOGIN:
+  Username: ADMIN/001
+  Password: Admin@1234
+
+STUDENT LOGIN:
+  Username: 22/CSC/007
+  Password: Student@123
+
+LECTURER LOGIN (if available):
+  Check the database or admin panel for lecturer accounts
+
+================================================================================
+COMMON ISSUES AND TROUBLESHOOTING
+================================================================================
+
+ISSUE: Frontend shows "Cannot reach backend" or API calls fail
+CAUSE: Backend not running or on wrong port
+FIX: 
+  - Check Window 2 (backend) - should show "Uvicorn running on :8011"
+  - Restart backend if needed
+  - Wait 5 seconds for frontend to reconnect
+  - Refresh the browser (Ctrl+R)
+
+ISSUE: Website loads but all buttons are greyed out
+CAUSE: Not logged in or JWT token issue
+FIX:
+  - Reload the page (Ctrl+R)
+  - Clear browser cache (Ctrl+Shift+Delete)
+  - Try logging in again
+  - Make sure backend is running
+
+ISSUE: Login fails with "Invalid credentials"
+CAUSE: Database not seeded or wrong credentials
+FIX:
+  - Check you're using the exact credentials above
+  - Verify database is running
+  - Backend must be running (Window 2)
+
+ISSUE: Page loads very slowly or times out
+CAUSE: Database query taking too long or backend overloaded
+FIX:
+  - Check backend logs (Window 2) for errors
+  - Ensure PostgreSQL is running and responsive
+  - Ensure Redis is running (Window 1)
+  - Check if backend crashed; restart it
+
+ISSUE: Celery shows "Cannot connect to redis"
+CAUSE: Redis crashed or stopped
+FIX:
+  - Check Window 1 - should show "Ready to accept connections"
+  - If not, kill and restart: taskkill /F /IM redis-server.exe
+  - Wait 2 seconds
+  - Start Redis again in Window 1
+
+ISSUE: "Address already in use" for any port
+CAUSE: Service already running on that port
+FIX:
+  - Redis port 6379: taskkill /F /IM redis-server.exe
+  - Backend port 8011: taskkill /F /IM python.exe
+  - Frontend port 5173: taskkill /F /IM node.exe
+  - Wait 2 seconds
+  - Restart the service
+
+ISSUE: After changes, frontend doesn't update
+CAUSE: Vite dev server cache
+FIX:
+  - Hard refresh: Ctrl+Shift+R (Windows/Linux) or Cmd+Shift+R (Mac)
+  - Wait for Vite to recompile (check Window 4 logs)
+  - If it doesn't work, restart frontend service
+
+ISSUE: Python says "No module named [something]"
+CAUSE: Dependencies not installed
+FIX:
+  - cd to project root
+  - Activate venv: venv\Scripts\activate
+  - Reinstall: pip install -r requirements.txt
+  - This can take 30-60 seconds
+  - Try again
+
+================================================================================
+STOPPING THE APPLICATION
+================================================================================
+
+To stop everything cleanly:
+
+1. Close Window 4 (Frontend):
+   Press Ctrl+C in the npm window
+   
+2. Close Window 3 (Celery worker):
+   Press Ctrl+C
+   
+3. Close Window 2 (Backend):
+   Press Ctrl+C
+   
+4. Close Window 1 (Redis):
+   Press Ctrl+C
+
+OR, if a service won't close gracefully:
+
+taskkill /F /IM redis-server.exe
+taskkill /F /IM python.exe
+taskkill /F /IM node.exe
+
+All services will stop and you can restart them later.
+
+================================================================================
+RESTARTING AFTER STOPPING
+================================================================================
+
+To restart the application:
+
+1. Repeat Window 1 through Window 4 steps above
+2. Give each service 3-5 seconds to start before moving to the next
+3. Verify all services started successfully (see "Verify All Services")
+4. Navigate to http://localhost:5173 in your browser
+
+================================================================================
+PERFORMANCE NOTES
+================================================================================
+
+First Load Time:
+- Backend takes 10-20 seconds to start (watch for "Uvicorn running")
+- Celery takes 5-10 seconds to initialize
+- Frontend takes 30-40 seconds to compile (watch for "VITE ready")
+- Redis starts in 1-2 seconds
+
+If services take longer:
+- Check disk space (each service needs ~1-2 GB free)
+- Check CPU usage (other apps might be consuming resources)
+- Close unnecessary browser tabs and apps
+- Restart your computer if things feel slow
+
+First Database Query:
+- First login query might take 5-10 seconds
+- This is normal - data is being loaded and cached
+- Subsequent queries are much faster
+
+================================================================================
+FREQUENTLY ASKED QUESTIONS
+================================================================================
+
+Q: Can I run the app without the Beat scheduler (Window 5)?
+A: Yes! Windows 1-4 are required. Window 5 is optional for scheduled tasks.
+
+Q: What if I want to run just the backend API?
+A: Yes! Run Windows 1-3 (Redis, Backend, Celery). The frontend is not required
+   for the API to work. You can test it at http://localhost:8011/docs
+
+Q: Can I run the frontend without the backend?
+A: No. The frontend requires the backend API. Both must be running.
+
+Q: How do I update the code and see changes?
+A: The backend and frontend both use auto-reload:
+   - Backend: Changes to .py files auto-reload (Window 2)
+   - Frontend: Changes to .jsx/.js files auto-compile (Window 4)
+   - No need to restart services for code changes
+   - Backend might need a few seconds to reload
+
+Q: How do I check what's happening in each service?
+A: Look at the logs in each window:
+   - Window 1 (Redis): Status messages
+   - Window 2 (Backend): API request logs and errors
+   - Window 3 (Celery): Task processing logs
+   - Window 4 (Frontend): Build and compilation logs
+
+Q: What if the database is corrupted or out of sync?
+A: Reset the database:
+   1. Stop all services (all 4 windows)
+   2. Delete the database (if using SQLite) or drop/recreate in PostgreSQL
+   3. Restart services
+   4. The database will be initialized automatically
+
+Q: How do I see database errors?
+A: Check Window 2 (Backend) logs. Database connection errors appear there.
+
+Q: Can I run this on a different machine?
+A: Yes! But you need to:
+   1. Install Python 3.11+, Node.js 18+, PostgreSQL 15+, Redis
+   2. Update DATABASE_URL in backend/.env to point to your PostgreSQL
+   3. Update REDIS_URL in backend/.env if Redis is not on localhost
+   4. Follow the same steps as above
+
+================================================================================
+GETTING HELP
+================================================================================
+
+If you encounter an error not listed here:
+
+1. READ THE ERROR MESSAGE CAREFULLY - it usually tells you what's wrong
+2. CHECK THE LOGS in each window - look for stack traces or error details
+3. GOOGLE THE ERROR - copy the error message into Google
+4. CHECK NETWORK - ensure your internet is working (for package downloads)
+5. RESTART - close all windows and start fresh
+
+Common error phrases and what they mean:
+
+"ECONNREFUSED 127.0.0.1:8011"
+-> Backend is not running. Start Window 2.
+
+"ECONNREFUSED 127.0.0.1:6379"
+-> Redis is not running. Start Window 1.
+
+"ModuleNotFoundError" or "ImportError"
+-> Python dependency missing. Reinstall: pip install -r requirements.txt
+
+"Port already in use"
+-> Another process is using the port. Kill it with taskkill.
+
+"cannot find specified path"
+-> File path is wrong. Check the path and current directory with: cd
+
+================================================================================
+NEXT STEPS AFTER STARTUP
+================================================================================
+
+Once the app is running:
+
+1. Log in with the test credentials above
+2. Explore the dashboard
+3. Check the FastAPI docs at http://localhost:8011/docs
+4. Monitor the logs in each window for activity
+5. Make changes to code and see them auto-reload
+6. Test different features and user roles
+
+For development:
+- Backend code is in: backend/routers/ and backend/app_models.py
+- Frontend code is in: frontend/src/
+- Database schema is in: backend/app_models.py
+- API routes are documented at: http://localhost:8011/docs
+
+================================================================================
+END OF QUICK START GUIDE
+================================================================================
+
+Questions? Refer back to the appropriate section above.
+Keep this file handy for quick reference while developing.
+
+Last updated: June 8, 2026

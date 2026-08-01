@@ -1,0 +1,14 @@
+[Unit]
+Description=Maranatha Celery Worker
+After=network.target redis.service postgresql.service
+
+[Service]
+User=maranatha
+WorkingDirectory=/opt/maranatha_risk_system/backend
+ExecStart=/opt/venv/bin/celery -A celery_app worker -l info --pool=solo -Q default,email,ml
+Restart=always
+RestartSec=5
+Environment="PYTHONPATH=/opt/maranatha_risk_system/backend"
+
+[Install]
+WantedBy=multi-user.target

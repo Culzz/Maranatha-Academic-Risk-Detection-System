@@ -1,0 +1,10 @@
+.env
+__pycache__
+*.pyc
+*.pyo
+test.db
+uploads/
+ml/outputs/
+.pytest_cache
+*.log
+.git

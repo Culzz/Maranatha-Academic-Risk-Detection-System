@@ -1,0 +1,61 @@
+# Environment
+.env
+.env.*
+*.env
+backend/.env
+
+# Python
+__pycache__/
+*.py[cod]
+*.pyo
+*.pyd
+.Python
+venv/
+env/
+.venv/
+*.egg-info/
+dist/
+build/
+
+# ML / model artifacts
+*.pkl
+*.joblib
+*.h5
+ml/outputs/
+ml/model_evaluation_results.json
+ml/shap_explanations.json
+ml/maranatha_risk_scores.csv
+
+# Databases and local data dumps
+*.db
+*.sqlite3
+*.rdb
+*.sqlite
+backend/test.db
+dump.rdb
+redis/dump.rdb
+backend/dump.rdb
+
+# Logs
+*.log
+logs/
+
+# Seed / sensitive data
+backend/seed_credentials.txt
+backend/uploads/
+
+# Node / frontend
+node_modules/
+build/
+dist/
+.next/
+
+# OS
+.DS_Store
+Thumbs.db
+
+# IDE
+.vscode/
+
+# Celery
+celerybeat-schedule

@@ -1,0 +1,42 @@
+groups:
+  - name: maranatha
+    rules:
+      - alert: HighErrorRate
+        expr: rate(http_requests_total{status_code=~"5.."}[5m]) > 0.05
+        for: 5m
+        labels:
+          severity: critical
+        annotations:
+          summary: "High 5xx error rate ({{ $value | humanizePercentage }})"
+
+      - alert: SlowRequests
+        expr: histogram_quantile(0.95, rate(http_request_duration_seconds_bucket[5m])) > 3
+        for: 5m
+        labels:
+          severity: warning
+        annotations:
+          summary: "95th percentile latency above 3s"
+
+      - alert: CeleryQueueHigh
+        expr: celery_queue_length > 500
+        for: 10m
+        labels:
+          severity: warning
+        annotations:
+          summary: "Celery queue backlog exceeds 500 tasks"
+
+      - alert: RiskComputeStale
+        expr: time() - maranatha_last_risk_compute_timestamp > 604800
+        for: 1h
+        labels:
+          severity: warning
+        annotations:
+          summary: "Risk computation has not run in over 7 days"
+
+      - alert: DatabaseConnectionsHigh
+        expr: pg_stat_activity_count > 180
+        for: 5m
+        labels:
+          severity: critical
+        annotations:
+          summary: "PostgreSQL connections near limit ({{ $value }}/200)"
