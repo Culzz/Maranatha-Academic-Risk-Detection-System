@@ -3,6 +3,7 @@
 .env.*
 *.env
 backend/.env
+!.env.example
 
 # Local editor / agent files
 .claude/

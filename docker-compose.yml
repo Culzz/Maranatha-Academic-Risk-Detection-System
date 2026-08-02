@@ -1,4 +1,16 @@
-version: "3.8"
+x-backend-env: &backend-env
+  DATABASE_URL: postgresql://postgres:${DB_PASSWORD:-changeme}@db:5432/maranatha_risk
+  SECRET_KEY: ${SECRET_KEY:-change-this-in-production}
+  QR_HMAC_SECRET: ${QR_HMAC_SECRET:-change-this-in-production}
+  REDIS_URL: redis://redis:6379/0
+  DEBUG: "false"
+  CORS_ORIGINS: ${CORS_ORIGINS:-http://localhost,http://localhost:80}
+  FRONTEND_URL: ${FRONTEND_URL:-http://localhost}
+  ANTHROPIC_API_KEY: ${ANTHROPIC_API_KEY:-}
+  VAPID_PRIVATE_KEY: ${VAPID_PRIVATE_KEY:-}
+  VAPID_PUBLIC_KEY: ${VAPID_PUBLIC_KEY:-}
+  VAPID_CLAIMS_EMAIL: ${VAPID_CLAIMS_EMAIL:-mailto:admin@maranatha.edu.ng}
+  CDN_URL: ${CDN_URL:-}
 
 services:
   db:
@@ -42,18 +54,18 @@ services:
         condition: service_healthy
       redis:
         condition: service_healthy
-    environment:
-      DATABASE_URL: postgresql://postgres:${DB_PASSWORD:-changeme}@db:5432/maranatha_risk
-      SECRET_KEY: ${SECRET_KEY:-change-this-in-production}
-      REDIS_URL: redis://redis:6379/0
-      DEBUG: "false"
-      CORS_ORIGINS: "http://localhost,http://localhost:80"
-      CDN_URL: ${CDN_URL:-}
+    environment: *backend-env
     volumes:
       - uploads:/app/uploads
       - ml_models:/app/ml/outputs
     ports:
       - "8000:8000"
+    healthcheck:
+      test: ["CMD-SHELL", "python -c \"import urllib.request;urllib.request.urlopen('http://127.0.0.1:8000/live')\""]
+      interval: 15s
+      timeout: 5s
+      retries: 10
+      start_period: 60s
 
   # Celery worker — processes background tasks (email, SMS, ML)
   celery-worker:
@@ -66,10 +78,7 @@ services:
         condition: service_healthy
       redis:
         condition: service_healthy
-    environment:
-      DATABASE_URL: postgresql://postgres:${DB_PASSWORD:-changeme}@db:5432/maranatha_risk
-      SECRET_KEY: ${SECRET_KEY:-change-this-in-production}
-      REDIS_URL: redis://redis:6379/0
+    environment: *backend-env
     volumes:
       - uploads:/app/uploads
       - ml_models:/app/ml/outputs
@@ -86,10 +95,7 @@ services:
         condition: service_healthy
       redis:
         condition: service_healthy
-    environment:
-      DATABASE_URL: postgresql://postgres:${DB_PASSWORD:-changeme}@db:5432/maranatha_risk
-      SECRET_KEY: ${SECRET_KEY:-change-this-in-production}
-      REDIS_URL: redis://redis:6379/0
+    environment: *backend-env
     command: celery -A celery_app beat --loglevel=info
 
   frontend:
@@ -102,7 +108,17 @@ services:
     depends_on:
       - backend
     ports:
-      - "80:80"
+      - "${WEB_PORT:-80}:80"
+
+  # Public HTTPS URL for sharing the PWA — `docker compose --profile share up -d`
+  # The generated https://*.trycloudflare.com URL appears in `docker compose logs tunnel`.
+  tunnel:
+    image: cloudflare/cloudflared:latest
+    restart: unless-stopped
+    profiles: ["share"]
+    depends_on:
+      - frontend
+    command: tunnel --no-autoupdate --url http://frontend:80
 
 volumes:
   pgdata:

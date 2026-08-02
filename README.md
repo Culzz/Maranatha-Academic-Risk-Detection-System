@@ -149,7 +149,7 @@ maranatha_risk_system/
 | `docs/API.md` | Complete endpoint reference — auth flows, request/response payloads |
 | `docs/RISK_ENGINE.md` | ML pipeline, 24-feature schema, model training, SHAP explainability |
 | `docs/AI_INTEGRATION.md` | Claude AI feature integration, prompt design, and fallback behaviour |
-| `docs/DEPLOYMENT.md` | Dev setup, production deployment, Nginx configuration, Celery setup |
+| `docs/DEPLOYMENT.md` | Docker deployment, dev setup, production deployment, Nginx configuration, Celery setup |
 | `docs/RUNBOOKS.md` | Operational procedures for 10 defined failure scenarios |
 | `backend/README.md` | Backend internals, route modules, ORM model index |
 | `frontend/README.md` | Frontend page inventory, component conventions, build configuration |
@@ -157,7 +157,64 @@ maranatha_risk_system/
 
 ---
 
-## Quickstart (Development)
+## Run It on Your Own PC (Docker — recommended)
+
+The only prerequisite is [Docker Desktop](https://www.docker.com/products/docker-desktop/) (Windows/macOS) or Docker Engine + Compose (Linux). Everything else — Postgres, Redis, backend, Celery, the built PWA — runs in containers.
+
+```bash
+git clone https://github.com/Culzz/Maranatha-Academic-Risk-Detection-System.git
+cd Maranatha-Academic-Risk-Detection-System
+
+# Linux / macOS
+./scripts/start.sh
+
+# Windows (PowerShell)
+.\scripts\start.ps1
+```
+
+The script generates `.env` with fresh secrets, builds the images, starts every service, and seeds demo data on first run. When it finishes:
+
+| | |
+|---|---|
+| App | http://localhost |
+| API docs | http://localhost:8000/docs |
+| Admin login | `ADMIN/001` / `Admin@1234` |
+
+If port 80 is already in use, set `WEB_PORT=8080` in `.env` and re-run.
+
+### Sharing it with anyone (public HTTPS URL)
+
+```bash
+./scripts/start.sh --share      # Windows: .\scripts\start.ps1 -Share
+```
+
+This additionally starts a Cloudflare Quick Tunnel and prints a `https://<random>.trycloudflare.com` URL that anyone on the internet can open while your PC is running — no account, domain, or router config needed. Retrieve it again any time with `docker compose logs tunnel`.
+
+> The tunnel URL changes on every restart. For a stable URL, create a named Cloudflare Tunnel and replace the `tunnel` service command with `tunnel --no-autoupdate run --token <your-token>`.
+
+### Installing as a PWA
+
+Over `https://` (the share URL) or `http://localhost`, the app is an installable Progressive Web App:
+
+- **Desktop Chrome/Edge:** click the install icon in the address bar, or menu → *Install app*.
+- **Android Chrome:** menu → *Add to home screen*.
+- **iOS Safari:** Share → *Add to Home Screen*.
+
+It then runs in a standalone window, works offline for cached pages, and supports push notifications once VAPID keys are set in `.env`.
+
+### Day-to-day commands
+
+```bash
+docker compose ps                  # service status
+docker compose logs -f backend     # follow backend logs
+docker compose down                # stop (data preserved in volumes)
+docker compose down -v             # stop and wipe all data
+docker compose exec backend python reset_db.py   # re-seed demo data
+```
+
+---
+
+## Quickstart (Development, without Docker)
 
 ### Prerequisites
 
