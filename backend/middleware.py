@@ -234,43 +234,20 @@ class RequestBodySizeLimitMiddleware:
 
         # Slow path: chunked transfer or no Content-Length — buffer body and measure
         if content_length is None:
-            body_chunks = []
-            total = 0
-            oversized = False
-
             original_receive = receive
 
-            async def limited_receive():
-                nonlocal total, oversized
-                message = await original_receive()
-                if message.get("type") == "http.request":
-                    chunk = message.get("body", b"")
-                    total += len(chunk)
-                    if total > self.max_body_bytes:
-                        oversized = True
-                    body_chunks.append(chunk)
-                return message
-
-            # Prime the first receive to check size; pass a wrapped receive downstream
-            buffered_body = None
-
-            async def buffering_receive():
-                nonlocal buffered_body
-                if buffered_body is not None:
-                    msg = buffered_body
-                    buffered_body = None
-                    return msg
-                return await original_receive()
-
-            # We buffer by wrapping receive and checking accumulation
+            # Buffer the body by wrapping receive and checking accumulation
             received_bytes = 0
             buffer = bytearray()
             done = False
 
             async def measuring_receive():
                 nonlocal received_bytes, done
+                # Body already fully read — defer to the server so the caller
+                # blocks until http.disconnect instead of spinning on a
+                # synthesised message (long-lived SSE/WS streams poll receive).
                 if done:
-                    return {"type": "http.request", "body": b"", "more_body": False}
+                    return await original_receive()
                 msg = await original_receive()
                 if msg.get("type") == "http.request":
                     chunk = msg.get("body", b"")

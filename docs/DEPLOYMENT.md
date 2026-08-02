@@ -33,6 +33,47 @@ A quick reference of every external service the system depends on. All must be r
 
 ---
 
+## Docker Deployment (single machine, recommended)
+
+Runs the whole stack — Postgres, Redis, FastAPI, Celery worker + beat, and the built PWA behind Nginx — with one command. Only Docker is required on the host.
+
+```bash
+./scripts/start.sh              # Windows: .\scripts\start.ps1
+./scripts/start.sh --share      # additionally exposes a public https:// URL
+```
+
+What the script does:
+
+1. Generates `.env` from `.env.example` with random `DB_PASSWORD`, `SECRET_KEY`, and `QR_HMAC_SECRET` (the backend refuses to boot with the dev defaults).
+2. `docker compose build` then `docker compose up -d`.
+3. Waits for `GET /live`, then runs `python reset_db.py` inside the backend container on first run only (fresh `pgdata` volume).
+
+| Service | Port | Notes |
+|---------|------|-------|
+| frontend (Nginx + Vite build) | `${WEB_PORT:-80}` | Also proxies `/api/`, SSE, WebSocket, `/uploads/` to the backend |
+| backend (uvicorn) | 8000 | Health probes at `/live`, `/ready`, `/` |
+| db (postgres:15) | 5432 | Volume `pgdata` |
+| redis (redis:7) | 6379 | Volume `redisdata` |
+| celery-worker / celery-beat | — | Same image as backend |
+| tunnel (cloudflared) | — | `share` profile only |
+
+Because the browser talks only to the frontend origin and Nginx proxies the API, no CORS configuration is needed for the Docker setup.
+
+### Public sharing via Cloudflare Tunnel
+
+`docker compose --profile share up -d` starts `cloudflared` and prints a `https://<random>.trycloudflare.com` URL (`docker compose logs tunnel`) that anyone can open while the host is running. HTTPS is terminated by Cloudflare, which is what makes the app installable as a PWA off-localhost. Quick Tunnel URLs are ephemeral — use a named tunnel (`tunnel run --token <token>`) for a stable hostname.
+
+### Upgrading a Docker deployment
+
+```bash
+git pull
+docker compose build
+docker compose up -d
+docker compose exec backend alembic upgrade head
+```
+
+---
+
 ## Development Setup
 
 ### 1. Clone the Repository
