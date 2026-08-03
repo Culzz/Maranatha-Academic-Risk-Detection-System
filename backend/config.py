@@ -24,6 +24,14 @@ class Settings(BaseSettings):
     # Database
     database_url: str
 
+    @field_validator("database_url", mode="before")
+    @classmethod
+    def normalize_database_url(cls, value):
+        """Rewrite legacy postgres:// scheme to postgresql:// for SQLAlchemy 2.x."""
+        if isinstance(value, str) and value.startswith("postgres://"):
+            return "postgresql://" + value[len("postgres://"):]
+        return value
+
     # JWT Authentication
     secret_key: str
     algorithm: str = "HS256"

@@ -1,0 +1,5 @@
+providers = ["python"]
+
+# tesseract-ocr binary is required at runtime by pytesseract (timetable image OCR upload).
+[phases.setup]
+aptPkgs = ["tesseract-ocr"]
