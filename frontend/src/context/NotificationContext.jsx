@@ -5,7 +5,7 @@
  */
 import { createContext, useContext, useState, useCallback, useEffect, useRef } from "react";
 import { useAuth } from "./AuthContext";
-import { api } from "../services/api";
+import { api, authApi } from "../services/api";
 
 const NotificationContext = createContext(null);
 
@@ -23,7 +23,18 @@ function scheduleNonCritical(work, delay = 1200) {
 export function NotificationProvider({ children }) {
   const { token } = useAuth();
   const [notifications, setNotifications] = useState([]);
+  const [unreadCount, setUnreadCount] = useState(0);
   const pollRef = useRef(null);
+
+  const fetchBootstrap = useCallback(async (tkn, forceRefresh = false) => {
+    if (!tkn || tkn.length < 20) return;
+    try {
+      const data = await authApi.getBootstrap(tkn, { forceRefresh });
+      setUnreadCount(Number(data?.unread_notification_count) || 0);
+    } catch {
+      // silent
+    }
+  }, []);
 
   const fetchNotifications = useCallback(async (tkn) => {
     // Guard: JWT tokens are always longer than 20 chars; skip if absent or malformed
@@ -32,6 +43,7 @@ export function NotificationProvider({ children }) {
       const data = await api.get("/notifications/me", { token: tkn });
       const items = Array.isArray(data) ? data : Array.isArray(data?.items) ? data.items : [];
       setNotifications(items);
+      setUnreadCount(items.filter((n) => !n.read).length);
     } catch {
       // silent — keep existing notifications on error
     }
@@ -39,12 +51,16 @@ export function NotificationProvider({ children }) {
 
   // Fetch on token change + start polling
   useEffect(() => {
-    if (!token) { setNotifications([]); return; }
+    if (!token) {
+      setNotifications([]);
+      setUnreadCount(0);
+      return;
+    }
 
     let cancelled = false;
     const runFetch = () => {
       if (!cancelled && document.visibilityState === "visible") {
-        fetchNotifications(token);
+        fetchBootstrap(token, true);
       }
     };
 
@@ -70,18 +86,30 @@ export function NotificationProvider({ children }) {
       clearInterval(pollRef.current);
       document.removeEventListener("visibilitychange", handleVisibilityChange);
     };
-  }, [token, fetchNotifications]);
+  }, [token, fetchBootstrap]);
 
   // Expose a manual refetch for bell icon click
   const refetch = useCallback(() => {
-    if (token) fetchNotifications(token);
-  }, [token, fetchNotifications]);
+    if (token) {
+      fetchNotifications(token);
+      fetchBootstrap(token, true);
+    }
+  }, [token, fetchNotifications, fetchBootstrap]);
 
   // Mark one notification as read — optimistic update + server sync
   const markRead = useCallback((id) => {
-    setNotifications((prev) =>
-      prev.map((n) => (n.id === id ? { ...n, read: true } : n))
-    );
+    setNotifications((prev) => {
+      let changed = false;
+      const next = prev.map((n) => {
+        if (n.id === id && !n.read) {
+          changed = true;
+          return { ...n, read: true };
+        }
+        return n;
+      });
+      if (changed) setUnreadCount((c) => Math.max(0, c - 1));
+      return next;
+    });
     if (token) {
       api.post(`/notifications/${id}/read`, null, { token }).catch(() => {});
     }
@@ -90,6 +118,7 @@ export function NotificationProvider({ children }) {
   // Mark all as read — optimistic update + server sync
   const markAllRead = useCallback(() => {
     setNotifications((prev) => prev.map((n) => ({ ...n, read: true })));
+    setUnreadCount(0);
     if (token) {
       api.post("/notifications/read-all", null, { token }).catch(() => {});
     }
@@ -101,9 +130,8 @@ export function NotificationProvider({ children }) {
       { ...notification, id: Date.now(), read: false, created_at: new Date().toISOString() },
       ...prev,
     ]);
+    setUnreadCount((c) => c + 1);
   }, []);
-
-  const unreadCount = notifications.filter((n) => !n.read).length;
 
   // Update document title with unread badge
   useEffect(() => {

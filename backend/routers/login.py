@@ -11,6 +11,7 @@ from fastapi import APIRouter, Depends, HTTPException, status, Query, Request
 from fastapi.security import OAuth2PasswordRequestForm
 from fastapi import BackgroundTasks
 from jose import jwt
+from sqlalchemy import func as sa_func, or_
 from sqlalchemy.orm import Session
 
 from security import (
@@ -26,8 +27,197 @@ from config import get_settings
 from email_service import send_confirmation_email, send_password_reset_email, _send_smtp
 from rate_limit import limiter
 from monitoring import active_users_gauge
+from cache import cache_get, cache_set
+from session_utils import get_active_or_latest_session, compute_current_week, get_current_holiday
+from audit import log_action
 
 router = APIRouter()
+
+
+def _bootstrap_week_info(db: Session) -> dict:
+    """Build week-info payload equivalent to /sessions/current/week-info."""
+    session = get_active_or_latest_session(db)
+    if not session:
+        return {
+            "week": 0,
+            "total_weeks": 26,
+            "phase": "not_started",
+            "session_label": None,
+            "semester": None,
+            "start_date": None,
+            "end_date": None,
+            "current_holiday": None,
+        }
+
+    week_info = compute_current_week(db, session)
+    holiday = get_current_holiday(db, session)
+    return {
+        **week_info,
+        "session_label": session.session_label,
+        "semester": session.semester,
+        "start_date": str(session.start_date) if session.start_date else None,
+        "end_date": str(session.end_date) if session.end_date else None,
+        "current_holiday": holiday,
+    }
+
+
+def _student_summary(current_user: models.User, db: Session) -> dict:
+    session = get_active_or_latest_session(db)
+    if not session:
+        return {
+            "courses_count": 0,
+            "high_risk_count": 0,
+            "medium_risk_count": 0,
+            "pending_interventions_count": 0,
+        }
+
+    cache_key = f"overview:student:{current_user.id}:{session.id}"
+    cached = cache_get(cache_key)
+    if isinstance(cached, dict):
+        risk_scores = cached.get("risk_scores") or []
+        interventions = cached.get("interventions") or []
+        return {
+            "courses_count": len(cached.get("courses") or []),
+            "high_risk_count": sum(1 for r in risk_scores if r.get("risk_level") == "High"),
+            "medium_risk_count": sum(1 for r in risk_scores if r.get("risk_level") == "Medium"),
+            "pending_interventions_count": sum(1 for i in interventions if not i.get("acknowledged_by_student")),
+        }
+
+    courses_count = db.query(sa_func.count(models.Enrollment.id)).filter(
+        models.Enrollment.student_id == current_user.id,
+        models.Enrollment.session_id == session.id,
+    ).scalar() or 0
+
+    risk_rows = db.query(models.RiskScore).filter(
+        models.RiskScore.student_id == current_user.id,
+        models.RiskScore.session_id == session.id,
+    ).order_by(models.RiskScore.course_id, models.RiskScore.week_number.desc()).all()
+    seen_course_ids = set()
+    high_risk_count = 0
+    medium_risk_count = 0
+    for row in risk_rows:
+        if row.course_id in seen_course_ids:
+            continue
+        seen_course_ids.add(row.course_id)
+        if row.risk_level == "High":
+            high_risk_count += 1
+        elif row.risk_level == "Medium":
+            medium_risk_count += 1
+
+    pending_interventions_count = db.query(sa_func.count(models.Intervention.id)).filter(
+        models.Intervention.student_id == current_user.id,
+        models.Intervention.status.in_(["pending", "viewed"]),
+        models.Intervention.acknowledged_by_student == False,
+    ).scalar() or 0
+
+    return {
+        "courses_count": int(courses_count),
+        "high_risk_count": int(high_risk_count),
+        "medium_risk_count": int(medium_risk_count),
+        "pending_interventions_count": int(pending_interventions_count),
+    }
+
+
+def _lecturer_summary(current_user: models.User, db: Session) -> dict:
+    session = get_active_or_latest_session(db)
+    if not session:
+        return {
+            "courses_count": 0,
+            "student_total": 0,
+            "pending_interventions_count": 0,
+        }
+
+    cached = cache_get(f"overview:lecturer:{current_user.id}:{session.id}")
+    if isinstance(cached, dict):
+        return {
+            "courses_count": len(cached.get("courses") or []),
+            "student_total": int(cached.get("student_total") or 0),
+            "pending_interventions_count": len(cached.get("pending_interventions") or []),
+        }
+
+    course_ids = [row[0] for row in db.query(models.Course.id).filter(
+        models.Course.lecturer_id == current_user.id,
+        models.Course.session_id == session.id,
+    ).all()]
+
+    if not course_ids:
+        return {
+            "courses_count": 0,
+            "student_total": 0,
+            "pending_interventions_count": 0,
+        }
+
+    student_total = db.query(sa_func.count(sa_func.distinct(models.Enrollment.student_id))).filter(
+        models.Enrollment.course_id.in_(course_ids),
+        models.Enrollment.session_id == session.id,
+    ).scalar() or 0
+
+    pending_interventions_count = db.query(sa_func.count(models.Intervention.id)).filter(
+        models.Intervention.course_id.in_(course_ids),
+        models.Intervention.status == "pending",
+    ).scalar() or 0
+
+    return {
+        "courses_count": len(course_ids),
+        "student_total": int(student_total),
+        "pending_interventions_count": int(pending_interventions_count),
+    }
+
+
+def _admin_summary(db: Session) -> dict:
+    cached = cache_get("v2:admin:dashboard")
+    if isinstance(cached, dict):
+        return {
+            "total_students": int(cached.get("total_students") or 0),
+            "total_lecturers": int(cached.get("total_lecturers") or 0),
+            "active_session": cached.get("active_session"),
+            "risk_distribution": cached.get("risk_distribution") or {"High": 0, "Medium": 0, "Low": 0},
+        }
+
+    total_students = db.query(sa_func.count(models.User.id)).filter(
+        models.User.role == "student",
+        models.User.is_active == True,
+    ).scalar() or 0
+    total_lecturers = db.query(sa_func.count(models.User.id)).filter(
+        models.User.role == "lecturer",
+        models.User.is_active == True,
+    ).scalar() or 0
+    session = get_active_or_latest_session(db)
+
+    return {
+        "total_students": int(total_students),
+        "total_lecturers": int(total_lecturers),
+        "active_session": session.session_label if session else None,
+        "risk_distribution": {"High": 0, "Medium": 0, "Low": 0},
+    }
+
+
+@router.get("/bootstrap")
+def auth_bootstrap(
+    current_user: models.User = Depends(get_current_user),
+    db: Session = Depends(get_db),
+):
+    """Single-call auth bootstrap for dashboard shell and top-level providers."""
+    unread_notifications = db.query(sa_func.count(models.Notification.id)).filter(
+        models.Notification.user_id == current_user.id,
+        models.Notification.is_read == False,
+    ).scalar() or 0
+
+    if current_user.role == "student":
+        role_summary = _student_summary(current_user, db)
+    elif current_user.role == "lecturer":
+        role_summary = _lecturer_summary(current_user, db)
+    elif current_user.role == "admin":
+        role_summary = _admin_summary(db)
+    else:
+        role_summary = {}
+
+    return {
+        "profile_thumbnail": current_user.profile_picture_url,
+        "unread_notification_count": int(unread_notifications),
+        "current_week_info": _bootstrap_week_info(db),
+        "role_overview_summary": role_summary,
+    }
 
 
 def _password_used_recently(db: Session, user: models.User, new_password: str, last_n: int = 5) -> bool:
@@ -71,18 +261,30 @@ def login(
     """
     identifier = (form_data.username or "").strip()
 
-    # Try each indexed column individually instead of OR (avoids full table scan)
-    user = db.query(models.User).filter(
-        models.User.matric_number == identifier
-    ).first()
+    # One DB round-trip for identifier lookup, while preserving match priority:
+    # matric_number -> staff_id -> email (case-insensitive).
+    candidates = db.query(models.User).filter(
+        or_(
+            models.User.matric_number == identifier,
+            models.User.staff_id == identifier,
+            models.User.email == identifier,
+        )
+    ).all()
+    user = None
+    for candidate in candidates:
+        if candidate.matric_number == identifier:
+            user = candidate
+            break
     if not user:
-        user = db.query(models.User).filter(
-            models.User.staff_id == identifier
-        ).first()
+        for candidate in candidates:
+            if candidate.staff_id == identifier:
+                user = candidate
+                break
     if not user:
-        user = db.query(models.User).filter(
-            models.User.email == identifier
-        ).first()
+        for candidate in candidates:
+            if candidate.email == identifier:
+                user = candidate
+                break
 
     if not user:
         raise HTTPException(
@@ -94,6 +296,16 @@ def login(
     now = datetime.now(timezone.utc)
     if user.locked_until and user.locked_until > now:
         remaining = int((user.locked_until - now).total_seconds() / 60) + 1
+        log_action(
+            db=db,
+            actor_id=str(user.id),
+            actor_role=user.role,
+            action="login_blocked_locked",
+            resource_type="auth",
+            resource_id=str(user.id),
+            detail={"remaining_minutes": remaining},
+            ip_address=request.client.host if request.client else None,
+        )
         raise HTTPException(
             status_code=423,
             detail=f"Account locked. Try again in {remaining} minute(s).",
@@ -106,6 +318,16 @@ def login(
         if user.failed_login_attempts >= 5:
             user.locked_until = now + timedelta(minutes=15)
         db.commit()
+        log_action(
+            db=db,
+            actor_id=str(user.id),
+            actor_role=user.role,
+            action="login_failed_password",
+            resource_type="auth",
+            resource_id=str(user.id),
+            detail={"failed_attempts": user.failed_login_attempts},
+            ip_address=request.client.host if request.client else None,
+        )
         raise HTTPException(
             status_code=status.HTTP_401_UNAUTHORIZED,
             detail="Incorrect credentials.",
@@ -113,12 +335,30 @@ def login(
 
     # Wave 3: Check account activation and email confirmation.
     if not user.is_active:
+        log_action(
+            db=db,
+            actor_id=str(user.id),
+            actor_role=user.role,
+            action="login_blocked_inactive",
+            resource_type="auth",
+            resource_id=str(user.id),
+            ip_address=request.client.host if request.client else None,
+        )
         raise HTTPException(
             status_code=status.HTTP_403_FORBIDDEN,
             detail="Account not activated. Please check your email for the confirmation link.",
         )
     # Backward compat: existing users with NULL email_confirmed are treated as confirmed.
     if user.email_confirmed is not None and not user.email_confirmed:
+        log_action(
+            db=db,
+            actor_id=str(user.id),
+            actor_role=user.role,
+            action="login_blocked_email_unconfirmed",
+            resource_type="auth",
+            resource_id=str(user.id),
+            ip_address=request.client.host if request.client else None,
+        )
         raise HTTPException(
             status_code=status.HTTP_403_FORBIDDEN,
             detail="Email not confirmed. Please check your email for the confirmation link.",
@@ -131,6 +371,15 @@ def login(
     # ── MFA check — if enabled, return partial response (no token yet) ────
     if user.mfa_enabled:
         db.commit()
+        log_action(
+            db=db,
+            actor_id=str(user.id),
+            actor_role=user.role,
+            action="login_mfa_required",
+            resource_type="auth",
+            resource_id=str(user.id),
+            ip_address=request.client.host if request.client else None,
+        )
         return schemas.TokenResponse(
             access_token="",
             refresh_token="",
@@ -160,6 +409,17 @@ def login(
         fingerprint=compute_fingerprint(request),
     )
 
+    try:
+        claims = jwt.get_unverified_claims(token)
+        jti = claims.get("jti")
+        exp = claims.get("exp")
+        if jti and exp:
+            expires_at = datetime.fromtimestamp(exp, tz=timezone.utc)
+            ttl = max(60, int((expires_at - datetime.now(timezone.utc)).total_seconds()))
+            cache_set(f"auth:blacklist:{jti}", "ok", ttl=min(ttl, 60))
+    except Exception:
+        pass
+
     # Refresh token — long-lived (7 days default, 30 days for remember_me)
     refresh = create_refresh_token(
         str(user.id), db,
@@ -167,6 +427,17 @@ def login(
     )
 
     db.commit()
+
+    log_action(
+        db=db,
+        actor_id=str(user.id),
+        actor_role=user.role,
+        action="login_success",
+        resource_type="auth",
+        resource_id=str(user.id),
+        detail={"remember_me": bool(remember_me)},
+        ip_address=request.client.host if request.client else None,
+    )
 
     active_users_gauge.inc()
 
@@ -339,6 +610,8 @@ def logout(
                 user_id=current_user.id,
                 expires_at=expires_at,
             ))
+            ttl = max(60, int((expires_at - datetime.now(timezone.utc)).total_seconds()))
+            cache_set(f"auth:blacklist:{jti}", "revoked", ttl=ttl)
     except Exception:
         pass  # Token parsing failure should not block logout
 

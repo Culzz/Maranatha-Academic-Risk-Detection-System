@@ -29,6 +29,7 @@ class Settings(BaseSettings):
     algorithm: str = "HS256"
     access_token_expire_minutes: int = 30   # Short-lived access token
     refresh_token_expire_days: int = 7      # Long-lived refresh token
+    bcrypt_rounds: int = 10                 # Password hashing cost factor
 
     # Application
     app_name: str = "Maranatha Academic Risk Detection System"
@@ -95,6 +96,14 @@ class Settings(BaseSettings):
             return True
         if normalized in falsy:
             return False
+        return value
+
+    @field_validator("bcrypt_rounds")
+    @classmethod
+    def validate_bcrypt_rounds(cls, value: int) -> int:
+        """Keep bcrypt cost in a safe, practical range."""
+        if value < 4 or value > 16:
+            raise ValueError("BCRYPT_ROUNDS must be between 4 and 16.")
         return value
 
     class Config:

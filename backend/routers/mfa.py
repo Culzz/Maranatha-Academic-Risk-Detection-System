@@ -182,11 +182,39 @@ def mfa_verify_login(
     # Try TOTP first (6 digits)
     totp = _get_totp(user)
     if totp.verify(code, valid_window=1):
+        log_action(
+            db=db,
+            actor_id=str(user.id),
+            actor_role=user.role,
+            action="mfa_verify_success_totp",
+            resource_type="auth",
+            resource_id=str(user.id),
+            ip_address=request.client.host if request.client else None,
+        )
         return _issue_tokens(user, db, request=request)
 
     # Try recovery code (8 digits)
     if len(code) == 8 and code.isdigit() and _check_recovery_code(code, user, db):
+        log_action(
+            db=db,
+            actor_id=str(user.id),
+            actor_role=user.role,
+            action="mfa_verify_success_recovery_code",
+            resource_type="auth",
+            resource_id=str(user.id),
+            ip_address=request.client.host if request.client else None,
+        )
         return _issue_tokens(user, db, request=request)
+
+    log_action(
+        db=db,
+        actor_id=str(user.id),
+        actor_role=user.role,
+        action="mfa_verify_failed",
+        resource_type="auth",
+        resource_id=str(user.id),
+        ip_address=request.client.host if request.client else None,
+    )
 
     raise HTTPException(status_code=401, detail="Invalid MFA code.")
 

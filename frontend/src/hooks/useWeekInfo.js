@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-import { sessionsApi } from "../services/api";
+import { authApi, sessionsApi } from "../services/api";
 import { useAuth } from "../context/AuthContext";
 
 /**
@@ -15,9 +15,17 @@ export default function useWeekInfo() {
 
   useEffect(() => {
     if (!token) return;
-    sessionsApi.getCurrentWeekInfo(token)
-      .then(setInfo)
-      .catch(() => {})
+    authApi.getBootstrap(token)
+      .then((data) => {
+        if (data?.current_week_info) {
+          setInfo(data.current_week_info);
+          return;
+        }
+        return sessionsApi.getCurrentWeekInfo(token).then(setInfo);
+      })
+      .catch(() => {
+        sessionsApi.getCurrentWeekInfo(token).then(setInfo).catch(() => {});
+      })
       .finally(() => setLoading(false));
   }, [token]);
 
