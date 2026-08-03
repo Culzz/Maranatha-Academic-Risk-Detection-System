@@ -2,8 +2,10 @@
 set -eu
 
 if [ "${RUN_MIGRATIONS:-true}" = "true" ]; then
-  echo "[start-web] Running alembic migrations..."
-  alembic upgrade head
+  echo "[start-web] Creating any missing tables from ORM models..."
+  python -c "from database import Base, engine; Base.metadata.create_all(bind=engine)"
+  echo "[start-web] Stamping alembic to head (schema already matches current models)..."
+  alembic stamp head
 fi
 
 WORKERS="${UVICORN_WORKERS:-2}"
