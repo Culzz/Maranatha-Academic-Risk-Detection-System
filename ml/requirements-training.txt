@@ -1,0 +1,4 @@
+# Extra deps for offline model training/chart scripts only (not needed by the deployed backend).
+# Install on top of the root requirements.txt when running ml/ pipeline or generate_roc_curve.py.
+matplotlib==3.10.1
+seaborn==0.13.2
