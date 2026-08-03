@@ -1,5 +1,7 @@
 # Deploy Without Local Docker (Railway + Vercel)
 
+> **Superseded.** Use [RAILWAY_VERCEL_CLICK_BY_CLICK.md](./RAILWAY_VERCEL_CLICK_BY_CLICK.md) instead — it is the canonical, exact-order version of this same Railway + Vercel plan.
+
 This guide avoids Docker Desktop completely on your laptop.
 Build and runtime happen in the cloud.
 

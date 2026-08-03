@@ -1,5 +1,7 @@
 # Fast-Track Production Deployment (Public + PWA)
 
+> **Deprecated path.** This is the self-hosted Docker/VM route, which has been unreliable to finish (build/TLS/ops overhead). The supported deploy path is now [RAILWAY_VERCEL_CLICK_BY_CLICK.md](./RAILWAY_VERCEL_CLICK_BY_CLICK.md). Only use this guide if you specifically need a self-hosted VM instead of Railway.
+
 This gets Maranatha live on the internet with HTTPS so anyone can use it and install it as a Progressive Web App.
 
 ## What this setup gives you
