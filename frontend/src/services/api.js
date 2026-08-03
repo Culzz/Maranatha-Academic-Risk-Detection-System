@@ -8,13 +8,15 @@
  *   const data = await api.risk.getForStudent(studentId, token)
  */
 
-const BASE = "/api";
+const BASE = (import.meta.env.VITE_API_BASE_URL || "/api").replace(/\/$/, "");
 const DEFAULT_TIMEOUT_MS = 15000;
 const ADMIN_LONG_TIMEOUT_MS = 120000;
 const COMPUTE_TIMEOUT_MS = 180000;
+const BOOTSTRAP_CACHE_TTL_MS = 15000;
 
 // ── In-flight GET request deduplication ──────────
 const _inflight = new Map();
+let _bootstrapCache = { token: null, data: null, cachedAt: 0 };
 
 // ── Compatibility shim (replaces utils/api.js) ──────────
 // Admin pages use api.get/post/patch/delete object pattern.
@@ -243,6 +245,23 @@ export const authApi = {
   /** Validate matric number against admin-seeded whitelist */
   validateMatric: (matric_number, full_name) =>
     request("/auth/validate-matric", { method: "POST", body: { matric_number, full_name } }),
+
+  /** Single-call bootstrap payload for dashboard shell providers */
+  getBootstrap: async (token, { forceRefresh = false } = {}) => {
+    if (!token) return null;
+    const now = Date.now();
+    if (
+      !forceRefresh
+      && _bootstrapCache.token === token
+      && _bootstrapCache.data
+      && (now - _bootstrapCache.cachedAt) < BOOTSTRAP_CACHE_TTL_MS
+    ) {
+      return _bootstrapCache.data;
+    }
+    const data = await request("/auth/bootstrap", { token });
+    _bootstrapCache = { token, data, cachedAt: Date.now() };
+    return data;
+  },
 };
 
 // ── Students ──────────────────────────────────────────────

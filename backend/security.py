@@ -20,6 +20,7 @@ from sqlalchemy.orm import Session
 
 from config import get_settings
 from database import get_db
+from cache import cache_get, cache_set
 import app_models as models
 
 settings = get_settings()
@@ -28,9 +29,17 @@ settings = get_settings()
 oauth2_scheme = OAuth2PasswordBearer(tokenUrl="/api/auth/login")
 
 
+def _blacklist_cache_key(jti: str) -> str:
+    return f"auth:blacklist:{jti}"
+
+
 def hash_password(plain_password: str) -> str:
     """Return a bcrypt hash of the provided plain-text password."""
-    return _bcrypt.hashpw(plain_password.encode("utf-8"), _bcrypt.gensalt()).decode("utf-8")
+    rounds = int(getattr(settings, "bcrypt_rounds", 10) or 10)
+    return _bcrypt.hashpw(
+        plain_password.encode("utf-8"),
+        _bcrypt.gensalt(rounds=rounds),
+    ).decode("utf-8")
 
 
 def verify_password(plain_password: str, hashed_password: str) -> bool:
@@ -123,12 +132,27 @@ def get_current_user(
             raise credentials_exception
 
     # Check token blacklist — reject tokens that have been revoked via logout.
+    # Cache state to avoid repeated DB hits on high-fanout dashboard loads.
     if jti:
-        blacklisted = db.query(models.TokenBlacklist).filter(
-            models.TokenBlacklist.jti == jti
-        ).first()
-        if blacklisted:
+        cache_key = _blacklist_cache_key(jti)
+        cached_state = cache_get(cache_key)
+        if cached_state == "revoked":
             raise credentials_exception
+        if cached_state != "ok":
+            blacklisted = db.query(models.TokenBlacklist).filter(
+                models.TokenBlacklist.jti == jti
+            ).first()
+            if blacklisted:
+                ttl = 300
+                try:
+                    if blacklisted.expires_at:
+                        ttl = max(60, int((blacklisted.expires_at - datetime.now(timezone.utc)).total_seconds()))
+                except Exception:
+                    ttl = 300
+                cache_set(cache_key, "revoked", ttl=ttl)
+                raise credentials_exception
+            # Short TTL keeps cache fresh while cutting repeated DB reads.
+            cache_set(cache_key, "ok", ttl=60)
 
     user = db.query(models.User).filter(
         models.User.id == user_id,

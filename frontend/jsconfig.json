@@ -1,5 +1,7 @@
 {
+  "$schema": "../.vscode/jsconfig.schema.json",
   "compilerOptions": {
+    "ignoreDeprecations": "6.0",
     "baseUrl": ".",
     "jsx": "react-jsx",
     "module": "ESNext",

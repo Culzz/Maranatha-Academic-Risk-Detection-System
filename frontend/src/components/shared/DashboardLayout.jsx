@@ -6,7 +6,7 @@ import { useState, useEffect } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
 import { AnimatePresence, motion } from "framer-motion";
 import { useAuth } from "../../context/AuthContext";
-import { api } from "../../services/api";
+import { authApi } from "../../services/api";
 import Topbar from "./Topbar";
 import NotificationPanel from "./NotificationPanel";
 import useRealtimeEvents from "../../hooks/useRealtimeEvents";
@@ -41,10 +41,10 @@ export default function DashboardLayout({ sidebar: SidebarComponent, footerText,
     if (!token || user?.profile_picture_url) return;
     let cancelled = false;
     const cleanup = scheduleNonCritical(() => {
-      api.get("/profile/me", { token })
+      authApi.getBootstrap(token)
         .then((data) => {
-          if (!cancelled && data?.profile_picture_url) {
-            updateUser({ profile_picture_url: data.profile_picture_url });
+          if (!cancelled && data?.profile_thumbnail) {
+            updateUser({ profile_picture_url: data.profile_thumbnail });
           }
         })
         .catch(() => {});

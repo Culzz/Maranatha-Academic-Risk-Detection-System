@@ -24,9 +24,9 @@ export default function SosButton() {
 
   useEffect(() => {
     if (user?.role !== "student" || !token) return;
-    studentsApi.getRiskScores(token)
-      .then(scores => {
-        const arr = Array.isArray(scores) ? scores : [];
+    studentsApi.getOverview(token)
+      .then((overview) => {
+        const arr = Array.isArray(overview?.risk_scores) ? overview.risk_scores : [];
         if (arr.some(s => s.risk_level === "High")) {
           setVisible(true);
           setCourses(arr);
