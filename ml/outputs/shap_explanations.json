@@ -1,0 +1,1256 @@
+{
+  "feature_names": [
+    "Attendance Rate",
+    "Quiz Average",
+    "Assignment Rate",
+    "Late Submission Rate",
+    "Login Frequency",
+    "Consecutive Absences",
+    "Mood Score",
+    "SGPA",
+    "Help-Seeking Ratio",
+    "Peer Interaction Score",
+    "Material Access Rate",
+    "Attendance Trend",
+    "Quiz Score Trend",
+    "Login Frequency Trend",
+    "Submission Time Ratio",
+    "SGPA Delta",
+    "Risk Velocity",
+    "Check-In Streak",
+    "Attendance x Quiz Combined",
+    "SGPA x Absence Risk",
+    "Submission x Mood Combined",
+    "Level",
+    "Semester",
+    "Department"
+  ],
+  "mean_absolute_shap": [
+    0.08142298460006714,
+    0.22036071121692657,
+    0.16202953457832336,
+    0.32853490114212036,
+    0.2347799837589264,
+    0.01739676669239998,
+    0.8615979552268982,
+    2.724360704421997,
+    0.5360504984855652,
+    0.46883440017700195,
+    0.38500383496284485,
+    1.0575242042541504,
+    0.7770145535469055,
+    0.5516819357872009,
+    0.33259323239326477,
+    0.9830622673034668,
+    0.3346092402935028,
+    0.517902135848999,
+    0.12518635392189026,
+    0.09804229438304901,
+    0.24563716351985931,
+    0.059942327439785004,
+    0.04573787748813629,
+    0.06747021526098251
+  ],
+  "student_explanations": [
+    {
+      "student_index": 26,
+      "top_contributors": {
+        "Mood Score": 2.0967,
+        "Attendance Trend": -0.8169,
+        "Quiz Score Trend": 0.7932
+      }
+    },
+    {
+      "student_index": 27,
+      "top_contributors": {
+        "Mood Score": 2.1537,
+        "Attendance Trend": 1.292,
+        "Login Frequency Trend": -0.8795
+      }
+    },
+    {
+      "student_index": 30,
+      "top_contributors": {
+        "Mood Score": 1.39,
+        "Attendance Trend": 1.2171,
+        "SGPA Delta": 1.1316
+      }
+    },
+    {
+      "student_index": 31,
+      "top_contributors": {
+        "SGPA": 3.29,
+        "Mood Score": 1.255,
+        "Attendance Trend": 0.8469
+      }
+    },
+    {
+      "student_index": 36,
+      "top_contributors": {
+        "SGPA": 4.5898,
+        "SGPA Delta": 0.9908,
+        "Quiz Score Trend": 0.8606
+      }
+    },
+    {
+      "student_index": 44,
+      "top_contributors": {
+        "SGPA": 3.3788,
+        "SGPA Delta": 1.2454,
+        "Login Frequency Trend": 1.1922
+      }
+    },
+    {
+      "student_index": 60,
+      "top_contributors": {
+        "SGPA": 2.9693,
+        "Mood Score": 1.6905,
+        "Attendance Trend": -1.1226
+      }
+    },
+    {
+      "student_index": 62,
+      "top_contributors": {
+        "SGPA": -2.7188,
+        "SGPA Delta": 2.3754,
+        "Attendance Trend": 1.4962
+      }
+    },
+    {
+      "student_index": 72,
+      "top_contributors": {
+        "SGPA": 2.6283,
+        "Quiz Score Trend": 1.1264,
+        "Peer Interaction Score": -0.9812
+      }
+    },
+    {
+      "student_index": 77,
+      "top_contributors": {
+        "Mood Score": 3.0854,
+        "SGPA": -2.0986,
+        "Quiz Score Trend": -0.7556
+      }
+    },
+    {
+      "student_index": 84,
+      "top_contributors": {
+        "SGPA": 3.0547,
+        "SGPA Delta": 1.7867,
+        "Attendance Trend": -0.8836
+      }
+    },
+    {
+      "student_index": 89,
+      "top_contributors": {
+        "Login Frequency Trend": 1.0436,
+        "Attendance Trend": -1.0019,
+        "Quiz Score Trend": 0.7349
+      }
+    },
+    {
+      "student_index": 100,
+      "top_contributors": {
+        "SGPA": 3.4506,
+        "Quiz Score Trend": 1.0972,
+        "Mood Score": -0.9339
+      }
+    },
+    {
+      "student_index": 109,
+      "top_contributors": {
+        "SGPA": 3.0145,
+        "Mood Score": 1.2942,
+        "Attendance Trend": -1.1189
+      }
+    },
+    {
+      "student_index": 116,
+      "top_contributors": {
+        "SGPA": 3.5528,
+        "SGPA Delta": 0.5852,
+        "Quiz Score Trend": 0.5167
+      }
+    },
+    {
+      "student_index": 118,
+      "top_contributors": {
+        "SGPA Delta": 1.3833,
+        "Mood Score": 0.6828,
+        "Quiz Score Trend": 0.6031
+      }
+    },
+    {
+      "student_index": 136,
+      "top_contributors": {
+        "SGPA": 2.9067,
+        "Quiz Score Trend": 1.2431,
+        "Attendance Trend": 1.133
+      }
+    },
+    {
+      "student_index": 143,
+      "top_contributors": {
+        "SGPA": 4.5059,
+        "SGPA Delta": 1.3191,
+        "Login Frequency Trend": 1.0709
+      }
+    },
+    {
+      "student_index": 151,
+      "top_contributors": {
+        "SGPA": 4.2223,
+        "Quiz Score Trend": 0.996,
+        "Attendance Trend": 0.8339
+      }
+    },
+    {
+      "student_index": 154,
+      "top_contributors": {
+        "SGPA": 4.7263,
+        "Attendance Trend": -1.6021,
+        "Help-Seeking Ratio": -1.212
+      }
+    },
+    {
+      "student_index": 160,
+      "top_contributors": {
+        "SGPA": 3.9513,
+        "SGPA Delta": 1.236,
+        "Attendance Trend": 0.967
+      }
+    },
+    {
+      "student_index": 161,
+      "top_contributors": {
+        "SGPA": 2.8575,
+        "Quiz Score Trend": 1.3013,
+        "Mood Score": -1.0496
+      }
+    },
+    {
+      "student_index": 162,
+      "top_contributors": {
+        "SGPA": 3.312,
+        "SGPA Delta": -1.697,
+        "Quiz Score Trend": 1.368
+      }
+    },
+    {
+      "student_index": 169,
+      "top_contributors": {
+        "Login Frequency Trend": 2.014,
+        "SGPA Delta": 1.9773,
+        "SGPA": -1.8516
+      }
+    },
+    {
+      "student_index": 179,
+      "top_contributors": {
+        "SGPA": 1.7022,
+        "Login Frequency Trend": 1.2426,
+        "Mood Score": 1.1066
+      }
+    },
+    {
+      "student_index": 192,
+      "top_contributors": {
+        "SGPA": 2.9827,
+        "Mood Score": 1.2479,
+        "SGPA Delta": 1.1424
+      }
+    },
+    {
+      "student_index": 193,
+      "top_contributors": {
+        "SGPA": 3.0958,
+        "Mood Score": 1.8906,
+        "Quiz Score Trend": -0.6149
+      }
+    },
+    {
+      "student_index": 194,
+      "top_contributors": {
+        "SGPA": 2.9008,
+        "Mood Score": 1.5086,
+        "Quiz Score Trend": 0.9802
+      }
+    },
+    {
+      "student_index": 201,
+      "top_contributors": {
+        "SGPA": 3.553,
+        "SGPA Delta": 1.3268,
+        "Mood Score": 1.3047
+      }
+    },
+    {
+      "student_index": 204,
+      "top_contributors": {
+        "Quiz Score Trend": 1.4716,
+        "SGPA": 1.2061,
+        "Attendance Trend": 1.1254
+      }
+    },
+    {
+      "student_index": 207,
+      "top_contributors": {
+        "SGPA": 3.3205,
+        "SGPA Delta": 1.4476,
+        "Login Frequency Trend": -0.7357
+      }
+    },
+    {
+      "student_index": 212,
+      "top_contributors": {
+        "Attendance Trend": 1.6203,
+        "Quiz Score Trend": 1.2374,
+        "SGPA": 1.0374
+      }
+    },
+    {
+      "student_index": 224,
+      "top_contributors": {
+        "Mood Score": 2.5004,
+        "SGPA": -2.4186,
+        "Attendance Trend": 1.3271
+      }
+    },
+    {
+      "student_index": 249,
+      "top_contributors": {
+        "SGPA": 3.5614,
+        "Mood Score": -0.9698,
+        "Quiz Score Trend": 0.9382
+      }
+    },
+    {
+      "student_index": 268,
+      "top_contributors": {
+        "SGPA": 2.6564,
+        "Quiz Score Trend": 1.1474,
+        "Attendance Trend": 1.102
+      }
+    },
+    {
+      "student_index": 290,
+      "top_contributors": {
+        "SGPA": 3.9109,
+        "Quiz Score Trend": 0.9595,
+        "Attendance Trend": 0.8503
+      }
+    },
+    {
+      "student_index": 294,
+      "top_contributors": {
+        "SGPA": 3.2968,
+        "SGPA Delta": 1.728,
+        "Mood Score": 1.0697
+      }
+    },
+    {
+      "student_index": 300,
+      "top_contributors": {
+        "SGPA Delta": 1.8233,
+        "Attendance Trend": 1.4038,
+        "Peer Interaction Score": -0.8353
+      }
+    },
+    {
+      "student_index": 309,
+      "top_contributors": {
+        "Mood Score": 1.9463,
+        "Check-In Streak": 0.7032,
+        "Login Frequency Trend": -0.611
+      }
+    },
+    {
+      "student_index": 313,
+      "top_contributors": {
+        "Quiz Score Trend": 1.039,
+        "SGPA": 0.8077,
+        "SGPA Delta": -0.463
+      }
+    },
+    {
+      "student_index": 315,
+      "top_contributors": {
+        "SGPA": 4.0436,
+        "SGPA Delta": 1.7039,
+        "Quiz Score Trend": -0.9424
+      }
+    },
+    {
+      "student_index": 336,
+      "top_contributors": {
+        "SGPA": 3.3914,
+        "Quiz Score Trend": 1.1945,
+        "Attendance Trend": -1.1613
+      }
+    },
+    {
+      "student_index": 340,
+      "top_contributors": {
+        "SGPA Delta": 2.3246,
+        "SGPA": -1.7798,
+        "Attendance Trend": 1.2926
+      }
+    },
+    {
+      "student_index": 349,
+      "top_contributors": {
+        "SGPA": 3.497,
+        "SGPA Delta": 1.3358,
+        "Login Frequency Trend": 1.0505
+      }
+    },
+    {
+      "student_index": 350,
+      "top_contributors": {
+        "SGPA": 3.3882,
+        "Mood Score": 1.5448,
+        "SGPA Delta": 1.2298
+      }
+    },
+    {
+      "student_index": 352,
+      "top_contributors": {
+        "SGPA": 3.2319,
+        "Mood Score": 1.2811,
+        "Login Frequency Trend": 1.1053
+      }
+    },
+    {
+      "student_index": 363,
+      "top_contributors": {
+        "Mood Score": 1.9976,
+        "Attendance Trend": -0.8391,
+        "Check-In Streak": 0.6559
+      }
+    },
+    {
+      "student_index": 371,
+      "top_contributors": {
+        "Login Frequency Trend": 1.5797,
+        "Attendance Trend": 1.4019,
+        "Quiz Score Trend": 1.164
+      }
+    },
+    {
+      "student_index": 380,
+      "top_contributors": {
+        "SGPA": 2.5735,
+        "Mood Score": 1.341,
+        "SGPA Delta": 1.2168
+      }
+    },
+    {
+      "student_index": 392,
+      "top_contributors": {
+        "Attendance Trend": 1.4329,
+        "Quiz Score Trend": 1.2057,
+        "SGPA Delta": 0.5059
+      }
+    },
+    {
+      "student_index": 395,
+      "top_contributors": {
+        "SGPA": 4.8305,
+        "SGPA Delta": 1.8773,
+        "Quiz Score Trend": -0.8938
+      }
+    },
+    {
+      "student_index": 403,
+      "top_contributors": {
+        "SGPA": 4.2337,
+        "SGPA Delta": 1.5999,
+        "Quiz Score Trend": 0.8829
+      }
+    },
+    {
+      "student_index": 405,
+      "top_contributors": {
+        "Login Frequency Trend": 1.6504,
+        "Attendance Trend": 1.3691,
+        "Quiz Score Trend": 1.0224
+      }
+    },
+    {
+      "student_index": 423,
+      "top_contributors": {
+        "SGPA": 3.5584,
+        "Quiz Score Trend": 1.0325,
+        "SGPA Delta": 1.0303
+      }
+    },
+    {
+      "student_index": 427,
+      "top_contributors": {
+        "SGPA": 3.5075,
+        "SGPA Delta": 1.75,
+        "Material Access Rate": -0.802
+      }
+    },
+    {
+      "student_index": 430,
+      "top_contributors": {
+        "SGPA": 2.3901,
+        "Mood Score": 1.6356,
+        "SGPA Delta": -1.0451
+      }
+    },
+    {
+      "student_index": 432,
+      "top_contributors": {
+        "SGPA": 3.8062,
+        "Login Frequency Trend": 0.9573,
+        "Attendance Trend": 0.9447
+      }
+    },
+    {
+      "student_index": 438,
+      "top_contributors": {
+        "SGPA": 4.5352,
+        "SGPA Delta": 2.0654,
+        "Quiz Score Trend": -0.705
+      }
+    },
+    {
+      "student_index": 442,
+      "top_contributors": {
+        "SGPA Delta": -0.7013,
+        "Peer Interaction Score": 0.6607,
+        "Check-In Streak": 0.4598
+      }
+    },
+    {
+      "student_index": 448,
+      "top_contributors": {
+        "SGPA": 3.8298,
+        "SGPA Delta": 1.4801,
+        "Help-Seeking Ratio": -0.9167
+      }
+    },
+    {
+      "student_index": 449,
+      "top_contributors": {
+        "SGPA": 3.7629,
+        "Quiz Score Trend": 1.1357,
+        "SGPA Delta": -1.0155
+      }
+    },
+    {
+      "student_index": 468,
+      "top_contributors": {
+        "Login Frequency Trend": 1.7328,
+        "Attendance Trend": 1.708,
+        "Quiz Score Trend": 1.0816
+      }
+    },
+    {
+      "student_index": 474,
+      "top_contributors": {
+        "Login Frequency Trend": 1.7666,
+        "SGPA Delta": 1.7331,
+        "Attendance Trend": 1.4074
+      }
+    },
+    {
+      "student_index": 476,
+      "top_contributors": {
+        "SGPA": 4.0488,
+        "SGPA Delta": 1.8889,
+        "Mood Score": 1.1519
+      }
+    },
+    {
+      "student_index": 484,
+      "top_contributors": {
+        "Mood Score": 2.14,
+        "SGPA": -2.1187,
+        "Login Frequency Trend": 1.5667
+      }
+    },
+    {
+      "student_index": 487,
+      "top_contributors": {
+        "Login Frequency Trend": 1.9736,
+        "Quiz Score Trend": -0.5776,
+        "SGPA": 0.5693
+      }
+    },
+    {
+      "student_index": 516,
+      "top_contributors": {
+        "Mood Score": 2.7843,
+        "SGPA": -1.4085,
+        "Peer Interaction Score": 1.0824
+      }
+    },
+    {
+      "student_index": 517,
+      "top_contributors": {
+        "SGPA": 4.0598,
+        "Quiz Score Trend": -0.8752,
+        "Attendance Trend": -0.6095
+      }
+    },
+    {
+      "student_index": 526,
+      "top_contributors": {
+        "Login Frequency Trend": 1.7658,
+        "SGPA": 0.6592,
+        "Quiz Score Trend": -0.6262
+      }
+    },
+    {
+      "student_index": 528,
+      "top_contributors": {
+        "SGPA": 4.2974,
+        "SGPA Delta": 1.482,
+        "Mood Score": 1.3657
+      }
+    },
+    {
+      "student_index": 550,
+      "top_contributors": {
+        "Mood Score": 1.4538,
+        "Attendance Trend": 1.3662,
+        "SGPA Delta": 1.2889
+      }
+    },
+    {
+      "student_index": 573,
+      "top_contributors": {
+        "Attendance Trend": 1.3048,
+        "Quiz Score Trend": 0.8379,
+        "Check-In Streak": 0.486
+      }
+    },
+    {
+      "student_index": 579,
+      "top_contributors": {
+        "Attendance Trend": 1.0427,
+        "SGPA": 0.8918,
+        "Quiz Score Trend": 0.8269
+      }
+    },
+    {
+      "student_index": 583,
+      "top_contributors": {
+        "SGPA": 3.9393,
+        "SGPA Delta": 1.6761,
+        "Attendance Trend": 0.8239
+      }
+    },
+    {
+      "student_index": 588,
+      "top_contributors": {
+        "Quiz Score Trend": 0.748,
+        "Peer Interaction Score": 0.6403,
+        "Check-In Streak": 0.5896
+      }
+    },
+    {
+      "student_index": 589,
+      "top_contributors": {
+        "SGPA": 2.858,
+        "SGPA Delta": 0.9486,
+        "Help-Seeking Ratio": -0.9187
+      }
+    },
+    {
+      "student_index": 604,
+      "top_contributors": {
+        "SGPA": 2.5031,
+        "Mood Score": 1.4642,
+        "Attendance Trend": 0.7407
+      }
+    },
+    {
+      "student_index": 623,
+      "top_contributors": {
+        "SGPA": 4.1909,
+        "Mood Score": 1.3705,
+        "SGPA Delta": 1.0435
+      }
+    },
+    {
+      "student_index": 624,
+      "top_contributors": {
+        "SGPA": 3.0413,
+        "Mood Score": 1.6379,
+        "SGPA Delta": 1.1219
+      }
+    },
+    {
+      "student_index": 625,
+      "top_contributors": {
+        "Attendance Trend": 1.6098,
+        "SGPA": 1.1739,
+        "Quiz Score Trend": 1.1178
+      }
+    },
+    {
+      "student_index": 644,
+      "top_contributors": {
+        "SGPA": 4.292,
+        "Mood Score": -1.1105,
+        "Attendance Trend": 0.8825
+      }
+    },
+    {
+      "student_index": 649,
+      "top_contributors": {
+        "SGPA": 4.9285,
+        "Quiz Score Trend": 0.8442,
+        "Submission Time Ratio": 0.4028
+      }
+    },
+    {
+      "student_index": 655,
+      "top_contributors": {
+        "Login Frequency Trend": 1.3181,
+        "Attendance Trend": 1.229,
+        "Mood Score": -1.0487
+      }
+    },
+    {
+      "student_index": 670,
+      "top_contributors": {
+        "SGPA": 4.3546,
+        "SGPA Delta": 1.8023,
+        "Quiz Score Trend": -0.6372
+      }
+    },
+    {
+      "student_index": 672,
+      "top_contributors": {
+        "SGPA": 4.0423,
+        "SGPA Delta": 2.0225,
+        "Quiz Score Trend": -0.8451
+      }
+    },
+    {
+      "student_index": 693,
+      "top_contributors": {
+        "Mood Score": 2.8088,
+        "Attendance Trend": 1.4647,
+        "SGPA": -1.4433
+      }
+    },
+    {
+      "student_index": 695,
+      "top_contributors": {
+        "SGPA": 4.2789,
+        "SGPA Delta": 1.8955,
+        "Help-Seeking Ratio": -1.3414
+      }
+    },
+    {
+      "student_index": 712,
+      "top_contributors": {
+        "SGPA": 3.1844,
+        "Quiz Score Trend": 1.1506,
+        "Attendance Trend": 0.7436
+      }
+    },
+    {
+      "student_index": 717,
+      "top_contributors": {
+        "SGPA Delta": 1.3693,
+        "Mood Score": 1.1861,
+        "Attendance Trend": 1.1822
+      }
+    },
+    {
+      "student_index": 720,
+      "top_contributors": {
+        "SGPA": 4.0998,
+        "SGPA Delta": 1.3173,
+        "Mood Score": 0.9874
+      }
+    },
+    {
+      "student_index": 730,
+      "top_contributors": {
+        "SGPA Delta": 1.5109,
+        "Attendance Trend": 1.3648,
+        "Quiz Score Trend": 0.9215
+      }
+    },
+    {
+      "student_index": 731,
+      "top_contributors": {
+        "Mood Score": 1.7107,
+        "Login Frequency Trend": 1.008,
+        "Quiz Score Trend": 0.7189
+      }
+    },
+    {
+      "student_index": 736,
+      "top_contributors": {
+        "SGPA": 2.4859,
+        "Login Frequency Trend": 1.3836,
+        "SGPA Delta": 1.0741
+      }
+    },
+    {
+      "student_index": 756,
+      "top_contributors": {
+        "SGPA": 3.8964,
+        "SGPA Delta": 1.7432,
+        "Attendance Trend": 0.7472
+      }
+    },
+    {
+      "student_index": 760,
+      "top_contributors": {
+        "SGPA": 2.6471,
+        "Mood Score": 1.8287,
+        "SGPA Delta": -1.0042
+      }
+    },
+    {
+      "student_index": 767,
+      "top_contributors": {
+        "SGPA": 2.4473,
+        "Mood Score": 1.5674,
+        "Quiz Score Trend": -0.8407
+      }
+    },
+    {
+      "student_index": 776,
+      "top_contributors": {
+        "SGPA Delta": 1.9593,
+        "Login Frequency Trend": 1.4928,
+        "Attendance Trend": 1.2631
+      }
+    },
+    {
+      "student_index": 787,
+      "top_contributors": {
+        "SGPA": 2.6762,
+        "Quiz Score Trend": 1.1904,
+        "Login Frequency Trend": 1.1818
+      }
+    },
+    {
+      "student_index": 797,
+      "top_contributors": {
+        "SGPA": 5.0377,
+        "Attendance Trend": -0.6865,
+        "Login Frequency Trend": -0.5318
+      }
+    },
+    {
+      "student_index": 811,
+      "top_contributors": {
+        "SGPA": 2.2619,
+        "Mood Score": 1.3667,
+        "SGPA Delta": -1.145
+      }
+    },
+    {
+      "student_index": 815,
+      "top_contributors": {
+        "SGPA": 3.7824,
+        "SGPA Delta": 1.5753,
+        "Attendance Trend": -1.3874
+      }
+    },
+    {
+      "student_index": 824,
+      "top_contributors": {
+        "SGPA": 3.7771,
+        "SGPA Delta": 1.8848,
+        "Submission Time Ratio": -1.7089
+      }
+    },
+    {
+      "student_index": 830,
+      "top_contributors": {
+        "SGPA": 3.7132,
+        "SGPA Delta": 1.1725,
+        "Mood Score": 1.16
+      }
+    },
+    {
+      "student_index": 844,
+      "top_contributors": {
+        "SGPA": 3.1543,
+        "SGPA Delta": 1.8751,
+        "Quiz Score Trend": -0.6469
+      }
+    },
+    {
+      "student_index": 849,
+      "top_contributors": {
+        "SGPA": 4.1573,
+        "Attendance Trend": -1.2968,
+        "SGPA Delta": -0.9718
+      }
+    },
+    {
+      "student_index": 865,
+      "top_contributors": {
+        "SGPA": 3.4682,
+        "Attendance Trend": -2.2938,
+        "SGPA Delta": 1.2508
+      }
+    },
+    {
+      "student_index": 877,
+      "top_contributors": {
+        "Mood Score": 2.1166,
+        "Attendance Trend": 1.0323,
+        "Login Frequency Trend": -0.8796
+      }
+    },
+    {
+      "student_index": 888,
+      "top_contributors": {
+        "SGPA": 2.6506,
+        "SGPA Delta": 2.133,
+        "Quiz Score Trend": -0.9197
+      }
+    },
+    {
+      "student_index": 901,
+      "top_contributors": {
+        "SGPA": 4.0679,
+        "Peer Interaction Score": -1.0486,
+        "SGPA Delta": -0.9091
+      }
+    },
+    {
+      "student_index": 910,
+      "top_contributors": {
+        "SGPA": 2.3864,
+        "SGPA Delta": 2.2525,
+        "Quiz Score Trend": 1.1953
+      }
+    },
+    {
+      "student_index": 930,
+      "top_contributors": {
+        "SGPA": 2.4399,
+        "SGPA Delta": 1.3274,
+        "Attendance Trend": 1.0551
+      }
+    },
+    {
+      "student_index": 933,
+      "top_contributors": {
+        "SGPA": 3.3005,
+        "SGPA Delta": 1.218,
+        "Mood Score": 1.059
+      }
+    },
+    {
+      "student_index": 944,
+      "top_contributors": {
+        "Mood Score": 1.6116,
+        "Quiz Score Trend": 1.2283,
+        "SGPA Delta": -1.0816
+      }
+    },
+    {
+      "student_index": 962,
+      "top_contributors": {
+        "SGPA": 3.0799,
+        "SGPA Delta": 1.5789,
+        "Mood Score": -0.9964
+      }
+    },
+    {
+      "student_index": 964,
+      "top_contributors": {
+        "SGPA": 4.1509,
+        "SGPA Delta": 1.2233,
+        "Mood Score": 1.1891
+      }
+    },
+    {
+      "student_index": 971,
+      "top_contributors": {
+        "SGPA": 4.056,
+        "SGPA Delta": 1.5627,
+        "Quiz Score Trend": 1.0798
+      }
+    },
+    {
+      "student_index": 973,
+      "top_contributors": {
+        "SGPA": 4.0887,
+        "SGPA Delta": 1.6591,
+        "Login Frequency Trend": -0.6294
+      }
+    },
+    {
+      "student_index": 980,
+      "top_contributors": {
+        "SGPA": -3.4653,
+        "Login Frequency Trend": 1.2342,
+        "Attendance Trend": 1.071
+      }
+    },
+    {
+      "student_index": 982,
+      "top_contributors": {
+        "SGPA": -2.78,
+        "SGPA Delta": 1.794,
+        "Attendance Trend": 1.3541
+      }
+    },
+    {
+      "student_index": 989,
+      "top_contributors": {
+        "SGPA": 2.7492,
+        "SGPA Delta": 1.6955,
+        "Attendance Trend": 1.0872
+      }
+    },
+    {
+      "student_index": 992,
+      "top_contributors": {
+        "SGPA": 3.6859,
+        "Quiz Score Trend": -0.9676,
+        "Peer Interaction Score": -0.6677
+      }
+    },
+    {
+      "student_index": 1021,
+      "top_contributors": {
+        "SGPA": -2.1906,
+        "Login Frequency Trend": 1.1761,
+        "Quiz Score Trend": 1.1547
+      }
+    },
+    {
+      "student_index": 1022,
+      "top_contributors": {
+        "SGPA": 4.1788,
+        "Quiz Score Trend": 0.8654,
+        "Attendance Trend": -0.7624
+      }
+    },
+    {
+      "student_index": 1024,
+      "top_contributors": {
+        "SGPA": 3.9976,
+        "Login Frequency Trend": 1.4568,
+        "SGPA Delta": -1.3175
+      }
+    },
+    {
+      "student_index": 1026,
+      "top_contributors": {
+        "SGPA": 2.9251,
+        "Mood Score": 1.4901,
+        "SGPA Delta": 1.433
+      }
+    },
+    {
+      "student_index": 1034,
+      "top_contributors": {
+        "SGPA": 3.4495,
+        "Quiz Score Trend": 1.2691,
+        "Material Access Rate": -0.7459
+      }
+    },
+    {
+      "student_index": 1043,
+      "top_contributors": {
+        "SGPA": -2.7003,
+        "Mood Score": 2.5877,
+        "Peer Interaction Score": 1.113
+      }
+    },
+    {
+      "student_index": 1063,
+      "top_contributors": {
+        "SGPA": 3.2131,
+        "Attendance Trend": -0.6786,
+        "Quiz Score Trend": -0.6249
+      }
+    },
+    {
+      "student_index": 1066,
+      "top_contributors": {
+        "SGPA": 4.2187,
+        "SGPA Delta": 1.5929,
+        "Material Access Rate": -0.9951
+      }
+    },
+    {
+      "student_index": 1078,
+      "top_contributors": {
+        "SGPA": 4.2396,
+        "Attendance Trend": -1.0699,
+        "Peer Interaction Score": 0.5117
+      }
+    },
+    {
+      "student_index": 1090,
+      "top_contributors": {
+        "SGPA": 4.1146,
+        "Mood Score": 1.3389,
+        "Quiz Score Trend": -1.1795
+      }
+    },
+    {
+      "student_index": 1093,
+      "top_contributors": {
+        "Attendance Trend": 1.395,
+        "Quiz Score Trend": -0.8431,
+        "SGPA": 0.7381
+      }
+    },
+    {
+      "student_index": 1102,
+      "top_contributors": {
+        "SGPA": 3.2984,
+        "SGPA Delta": 1.5124,
+        "Attendance Trend": 0.7865
+      }
+    },
+    {
+      "student_index": 1110,
+      "top_contributors": {
+        "Attendance Trend": 1.0611,
+        "SGPA Delta": 0.5332,
+        "Quiz Score Trend": -0.5125
+      }
+    },
+    {
+      "student_index": 1116,
+      "top_contributors": {
+        "SGPA": 4.5518,
+        "SGPA Delta": 1.3708,
+        "Attendance Trend": -0.6319
+      }
+    },
+    {
+      "student_index": 1121,
+      "top_contributors": {
+        "SGPA": 3.3921,
+        "Mood Score": 1.3993,
+        "Material Access Rate": -0.7765
+      }
+    },
+    {
+      "student_index": 1127,
+      "top_contributors": {
+        "SGPA": 4.2274,
+        "Quiz Score Trend": -1.0127,
+        "Attendance Trend": 0.9049
+      }
+    },
+    {
+      "student_index": 1128,
+      "top_contributors": {
+        "SGPA": -3.7265,
+        "Attendance Trend": 1.8064,
+        "Login Frequency Trend": 1.4476
+      }
+    },
+    {
+      "student_index": 1148,
+      "top_contributors": {
+        "SGPA": 4.7176,
+        "Mood Score": 1.2386,
+        "Quiz Score Trend": -0.7608
+      }
+    },
+    {
+      "student_index": 1150,
+      "top_contributors": {
+        "SGPA": 2.846,
+        "Quiz Score Trend": 1.2918,
+        "Attendance Trend": 0.8377
+      }
+    },
+    {
+      "student_index": 1164,
+      "top_contributors": {
+        "SGPA": 3.8149,
+        "Mood Score": 1.0393,
+        "SGPA Delta": 0.9474
+      }
+    },
+    {
+      "student_index": 1192,
+      "top_contributors": {
+        "SGPA": 3.7878,
+        "Quiz Score Trend": 1.2972,
+        "SGPA Delta": -0.789
+      }
+    },
+    {
+      "student_index": 1211,
+      "top_contributors": {
+        "SGPA": 4.2749,
+        "SGPA Delta": 1.3081,
+        "Quiz Score Trend": 0.8844
+      }
+    },
+    {
+      "student_index": 1223,
+      "top_contributors": {
+        "SGPA": 2.4696,
+        "Mood Score": 1.673,
+        "Quiz Score Trend": 0.9371
+      }
+    },
+    {
+      "student_index": 1236,
+      "top_contributors": {
+        "SGPA": 3.7979,
+        "SGPA Delta": 1.6576,
+        "Attendance Trend": 0.9405
+      }
+    },
+    {
+      "student_index": 1256,
+      "top_contributors": {
+        "SGPA": -2.263,
+        "Attendance Trend": 1.8768,
+        "Quiz Score Trend": 1.0363
+      }
+    },
+    {
+      "student_index": 1261,
+      "top_contributors": {
+        "SGPA": 2.8807,
+        "Mood Score": 2.0696,
+        "SGPA Delta": -0.8874
+      }
+    },
+    {
+      "student_index": 1274,
+      "top_contributors": {
+        "SGPA": 4.0753,
+        "SGPA Delta": 1.2579,
+        "Mood Score": 1.2134
+      }
+    },
+    {
+      "student_index": 1280,
+      "top_contributors": {
+        "SGPA": 4.0006,
+        "Attendance Trend": -2.1174,
+        "Mood Score": -1.0892
+      }
+    },
+    {
+      "student_index": 1302,
+      "top_contributors": {
+        "Mood Score": 2.8392,
+        "SGPA": -2.026,
+        "Attendance Trend": 1.042
+      }
+    }
+  ]
+}

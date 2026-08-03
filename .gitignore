@@ -35,6 +35,12 @@ ml/model_evaluation_results.json
 ml/shap_explanations.json
 ml/maranatha_risk_scores.csv
 
+# Runtime artifacts required by ml_service.py / admin model endpoints — keep tracked
+!ml/outputs/xgboost_model.joblib
+!ml/outputs/model_evaluation_results.json
+!ml/outputs/feature_importance.csv
+!ml/outputs/shap_explanations.json
+
 # Databases and local data dumps
 *.db
 *.sqlite3

@@ -11,6 +11,7 @@ COPY requirements.txt .
 RUN pip install --no-cache-dir -r requirements.txt
 
 COPY backend/ .
+COPY ml/outputs/ /ml/outputs/
 
 RUN mkdir -p uploads ml/outputs
 RUN chmod +x /app/docker-entrypoint.sh

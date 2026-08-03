@@ -1,0 +1,25 @@
+feature,importance
+SGPA,0.19202848
+Mood Score,0.11712618
+Login Frequency,0.059198868
+Submission Time Ratio,0.056181505
+Attendance Trend,0.053563192
+SGPA Delta,0.05245084
+Help-Seeking Ratio,0.050837837
+Check-In Streak,0.048954938
+Submission x Mood Combined,0.048055608
+SGPA x Absence Risk,0.043870084
+Attendance Rate,0.039879307
+Assignment Rate,0.03510354
+Peer Interaction Score,0.030918105
+Login Frequency Trend,0.030387484
+Quiz Score Trend,0.030080987
+Risk Velocity,0.027107405
+Material Access Rate,0.021067865
+Late Submission Rate,0.0184039
+Quiz Average,0.012921776
+Attendance x Quiz Combined,0.008000215
+Department,0.0071370616
+Level,0.006208366
+Consecutive Absences,0.0057733688
+Semester,0.0047430974

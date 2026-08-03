@@ -1,0 +1,56 @@
+{
+  "Logistic Regression (Baseline)": {
+    "accuracy": 0.9459,
+    "ngs_precision": 0.6931,
+    "ngs_recall": 0.9333,
+    "ngs_f1": 0.7955,
+    "gs_f1": 0.9688,
+    "macro_f1": 0.8821,
+    "confusion_matrix": [
+      [
+        1118,
+        62
+      ],
+      [
+        10,
+        140
+      ]
+    ]
+  },
+  "Random Forest": {
+    "accuracy": 0.9436,
+    "ngs_precision": 0.8788,
+    "ngs_recall": 0.58,
+    "ngs_f1": 0.6988,
+    "gs_f1": 0.9689,
+    "macro_f1": 0.8338,
+    "confusion_matrix": [
+      [
+        1168,
+        12
+      ],
+      [
+        63,
+        87
+      ]
+    ]
+  },
+  "XGBoost": {
+    "accuracy": 0.9519,
+    "ngs_precision": 0.7792,
+    "ngs_recall": 0.8,
+    "ngs_f1": 0.7895,
+    "gs_f1": 0.9728,
+    "macro_f1": 0.8812,
+    "confusion_matrix": [
+      [
+        1146,
+        34
+      ],
+      [
+        30,
+        120
+      ]
+    ]
+  }
+}

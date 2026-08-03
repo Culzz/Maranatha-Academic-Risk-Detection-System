@@ -14,4 +14,6 @@ frontend/dist/
 *.egg-info/
 backups/
 uploads/
-ml/outputs/*.joblib
+ml/*.csv
+ml/*.zip
+ml/__pycache__/
