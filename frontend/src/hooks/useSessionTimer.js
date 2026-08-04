@@ -6,6 +6,7 @@
  */
 import { useEffect, useRef } from "react";
 import { useAuth } from "../context/AuthContext";
+import { BASE_URL } from "../services/api";
 
 const PING_INTERVAL_MS = 5 * 60 * 1000; // 5 minutes
 
@@ -23,7 +24,7 @@ export function useSessionTimer() {
       const minutes = Math.round((Date.now() - startRef.current) / 60000);
       if (minutes < 1) return;
       try {
-        await fetch("/api/sessions/ping", {
+        await fetch(`${BASE_URL}/sessions/ping`, {
           method: "POST",
           headers: {
             "Content-Type": "application/json",

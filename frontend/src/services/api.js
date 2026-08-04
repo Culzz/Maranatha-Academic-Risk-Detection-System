@@ -694,10 +694,10 @@ export const adminApi = {
     request("/admin/departments", { token }),
 
   bulkEnroll: (formData, token) =>
-    request("/enrollments/bulk-csv", { method: "POST", form: formData, token }),
+    request("/enrollments/bulk-csv", { method: "POST", form: formData, token, timeoutMs: ADMIN_LONG_TIMEOUT_MS }),
 
   uploadWhitelist: (formData, token) =>
-    request("/admin/students/whitelist", { method: "POST", form: formData, token }),
+    request("/admin/students/whitelist", { method: "POST", form: formData, token, timeoutMs: ADMIN_LONG_TIMEOUT_MS }),
 
   getAuditLog: (token) =>
     request("/admin/audit-log", { token }),
@@ -994,7 +994,7 @@ export const chatApi = {
 export const timetableApi = {
   // Class timetable
   uploadClassTimetable: (formData, token) =>
-    request("/timetable/class/upload", { method: "POST", form: formData, token }),
+    request("/timetable/class/upload", { method: "POST", form: formData, token, timeoutMs: ADMIN_LONG_TIMEOUT_MS }),
   getMyClassTimetable: (token) =>
     request("/timetable/class/my", { token }),
   getAdminClassTimetable: (token, department, day) => {
@@ -1012,13 +1012,13 @@ export const timetableApi = {
 
   // Exam timetable
   uploadExamTimetable: (formData, token) =>
-    request("/timetable/exam/upload", { method: "POST", form: formData, token }),
+    request("/timetable/exam/upload", { method: "POST", form: formData, token, timeoutMs: ADMIN_LONG_TIMEOUT_MS }),
   getMyExamTimetable: (token) =>
     request("/timetable/exam/my", { token }),
 
   // Calendar
   uploadCalendar: (formData, token) =>
-    request("/timetable/calendar/upload", { method: "POST", form: formData, token }),
+    request("/timetable/calendar/upload", { method: "POST", form: formData, token, timeoutMs: ADMIN_LONG_TIMEOUT_MS }),
   getCalendarEvents: (token, semester) => {
     let path = "/timetable/calendar";
     if (semester) path += `?semester=${encodeURIComponent(semester)}`;
@@ -1038,7 +1038,7 @@ export const timetableApi = {
 
 export const resultsApi = {
   uploadResults: (formData, token) =>
-    request("/results/upload", { method: "POST", form: formData, token }),
+    request("/results/upload", { method: "POST", form: formData, token, timeoutMs: ADMIN_LONG_TIMEOUT_MS }),
   getMyResults: (token) =>
     request("/results/my", { token }),
   getStudentResults: (studentId, token) =>
