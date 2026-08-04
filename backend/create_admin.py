@@ -51,6 +51,7 @@ def main():
             role="admin",
             admin_level="dap",   # top of hierarchy — required so this account can whitelist deans/HODs
             is_active=True,
+            email_confirmed=True,   # bootstrap account skips the email confirmation flow
         )
         db.add(admin)
         db.commit()
