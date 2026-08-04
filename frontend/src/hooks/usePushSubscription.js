@@ -8,6 +8,7 @@
  */
 import { useEffect, useRef } from "react";
 import { useAuth } from "../context/AuthContext";
+import { BASE_URL } from "../services/api";
 
 function scheduleNonCritical(work, delay = 1500) {
   if (typeof window !== "undefined" && typeof window.requestIdleCallback === "function") {
@@ -40,7 +41,7 @@ export default function usePushSubscription() {
     cleanupScheduled = scheduleNonCritical(() => {
       (async () => {
         try {
-          const res = await fetch("/api/push/vapid-public-key", {
+          const res = await fetch(`${BASE_URL}/push/vapid-public-key`, {
             headers: { Authorization: `Bearer ${token}` },
           });
           if (!res.ok || cancelled) return;
@@ -64,7 +65,7 @@ export default function usePushSubscription() {
           if (cancelled) return;
 
           const subJson = subscription.toJSON();
-          await fetch("/api/push/subscribe", {
+          await fetch(`${BASE_URL}/push/subscribe`, {
             method: "POST",
             headers: {
               "Content-Type": "application/json",
