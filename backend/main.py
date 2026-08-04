@@ -45,6 +45,8 @@ import logging
 import logging.config
 import time
 import re as _re
+import json
+from urllib.parse import urlparse
 
 
 class _SensitiveDataFilter(logging.Filter):
@@ -108,6 +110,8 @@ logging.config.dictConfig({
         "sqlalchemy.engine": {"level": "WARNING"},
     },
 })
+_logger = logging.getLogger("maranatha")
+
 from routers import login, students, lecturers, courses, attendance, quizzes, assignments, risk, interventions, enrollments, notifications, materials, messages, sessions
 from routers.admin import router as admin_router
 from routers import profile, tasks, checkins, sos, schedule, office_hours, peer_study, outcome_journals
@@ -120,10 +124,92 @@ from routers import mfa
 
 settings = get_settings()
 
+
+def _normalize_origin(value: str) -> str | None:
+    """Normalize input into an origin string (scheme://host[:port])."""
+    if not value:
+        return None
+    raw = value.strip().strip('"').strip("'")
+    if not raw:
+        return None
+
+    # Ignore wildcard here because allow_credentials=True cannot be paired
+    # safely with unrestricted origins.
+    if raw == "*":
+        return None
+
+    # Convert full URLs like https://example.com/api into a bare origin.
+    parsed = urlparse(raw)
+    if parsed.scheme and parsed.netloc:
+        return f"{parsed.scheme}://{parsed.netloc}".rstrip("/")
+
+    # Accept bare hosts (with optional port/path) by applying a safe default scheme.
+    host = raw.split("/", 1)[0].strip()
+    if not host:
+        return None
+
+    if host == "localhost" or host.startswith("localhost:") or host == "127.0.0.1" or host.startswith("127.0.0.1:"):
+        return f"http://{host}".rstrip("/")
+
+    if "." in host:
+        return f"https://{host}".rstrip("/")
+
+    return None
+
+
+def _build_cors_origins() -> list[str]:
+    """Parse CORS_ORIGINS from CSV/JSON formats and normalize entries safely."""
+    raw = (settings.cors_origins or "").strip()
+    candidates: list[str] = []
+
+    if raw:
+        # Support JSON array input often used in cloud dashboards.
+        if raw.startswith("[") and raw.endswith("]"):
+            try:
+                parsed = json.loads(raw)
+                if isinstance(parsed, list):
+                    candidates.extend(str(item) for item in parsed)
+                elif isinstance(parsed, str):
+                    candidates.append(parsed)
+            except Exception:
+                _logger.warning("Invalid JSON in CORS_ORIGINS; falling back to CSV parsing")
+        if not candidates:
+            candidates.extend(part for part in _re.split(r"[\s,;]+", raw) if part)
+
+    # FRONTEND_URL is commonly set correctly in production; include as fallback.
+    if settings.frontend_url:
+        candidates.append(settings.frontend_url)
+
+    normalized: list[str] = []
+    seen = set()
+    for item in candidates:
+        origin = _normalize_origin(item)
+        if not origin:
+            continue
+        if origin in seen:
+            continue
+        seen.add(origin)
+        normalized.append(origin)
+
+    # Keep safe local defaults if env parsing produced no valid entries.
+    if not normalized:
+        normalized = [
+            "http://localhost:5173",
+            "http://localhost:3000",
+            "http://localhost:5174",
+            "http://localhost:5175",
+            "http://localhost:5176",
+        ]
+
+    return normalized
+
+
+cors_origins = _build_cors_origins()
+_logger.info("Configured CORS origins: %s", cors_origins)
+
 # ---------------------------------------------------------------------------
 # Production startup validation — fail fast on bad config
 # ---------------------------------------------------------------------------
-_logger = logging.getLogger("maranatha")
 if not settings.debug:
     _missing = []
     if settings.secret_key in ("changeme", ""):
@@ -374,7 +460,7 @@ app.add_middleware(GZipMiddleware, minimum_size=500)
 
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=[o.strip() for o in settings.cors_origins.split(",")],
+    allow_origins=cors_origins,
     allow_credentials=True,
     allow_methods=["GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS"],
     allow_headers=["Authorization", "Content-Type", "X-Request-ID", "X-Requested-With", "Accept"],
