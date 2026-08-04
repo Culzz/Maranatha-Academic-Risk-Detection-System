@@ -8,6 +8,7 @@
 import { createContext, useContext, useEffect, useRef, useCallback, useState } from "react";
 import { useAuth } from "./AuthContext";
 import { useNotifications } from "./NotificationContext";
+import { BASE_URL } from "../services/api";
 
 const RealtimeContext = createContext(null);
 
@@ -120,7 +121,7 @@ export function RealtimeProvider({ children }) {
       }
     } catch { /* proceed anyway */ }
 
-    const url = `/api/events/stream?token=${encodeURIComponent(token)}`;
+    const url = `${BASE_URL}/events/stream?token=${encodeURIComponent(token)}`;
     const es = new EventSource(url);
     sourceRef.current = es;
 
