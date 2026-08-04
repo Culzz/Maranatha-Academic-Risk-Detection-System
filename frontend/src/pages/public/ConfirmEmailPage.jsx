@@ -7,7 +7,7 @@ import { useState, useEffect } from "react";
 import { motion } from "framer-motion";
 import { useNavigate, useSearchParams } from "react-router-dom";
 import { CheckCircle, XCircle, RefreshCw, LogIn } from "lucide-react";
-import { BASE_URL } from "../../services/api";
+import { BASE_URL, extractErrorMessage } from "../../services/api";
 import crest from "../../assets/maranatha-crest.png";
 
 export default function ConfirmEmailPage() {
@@ -39,7 +39,7 @@ export default function ConfirmEmailPage() {
         if (cancelled) return;
 
         if (!res.ok) {
-          setErrorMsg(data.detail || "Invalid or expired confirmation link.");
+          setErrorMsg(extractErrorMessage(data, "Invalid or expired confirmation link."));
           setStatus("error");
         } else {
           setStatus("success");

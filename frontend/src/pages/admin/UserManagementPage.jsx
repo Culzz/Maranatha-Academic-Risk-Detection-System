@@ -10,7 +10,7 @@ import {
   Upload, FileText, ShieldCheck, ChevronDown,
 } from "lucide-react";
 import { useAuth } from "../../context/AuthContext";
-import { api, BASE_URL } from "../../services/api";
+import { api, BASE_URL, unwrapEnvelope, extractErrorMessage } from "../../services/api";
 import { formatDate } from "../../utils/helpers";
 import VirtualizedTable from "../../components/shared/VirtualizedTable";
 
@@ -54,9 +54,9 @@ function WhitelistSection({ token }) {
         headers: { Authorization: `Bearer ${token}` },
         body: form,
       });
-      const data = await res.json();
-      if (!res.ok) throw new Error(data.detail || "Upload failed");
-      setResult(data);
+      const raw = await res.json();
+      if (!res.ok) throw new Error(extractErrorMessage(raw, "Upload failed"));
+      setResult(unwrapEnvelope(raw));
       setFile(null);
     } catch (e) {
       setError(e.message);
@@ -170,9 +170,9 @@ function LecturerWhitelistSection({ token }) {
         headers: { Authorization: `Bearer ${token}` },
         body: form,
       });
-      const data = await res.json();
-      if (!res.ok) throw new Error(data.detail || "Upload failed");
-      setResult(data);
+      const raw = await res.json();
+      if (!res.ok) throw new Error(extractErrorMessage(raw, "Upload failed"));
+      setResult(unwrapEnvelope(raw));
       setFile(null);
     } catch (e) {
       setError(e.message);
@@ -312,7 +312,7 @@ function AdminInviteSection({ token }) {
       try {
         const res = await fetch(`${BASE_URL}/auth/admin/faculties`);
         if (!res.ok) throw new Error("Failed to load faculties");
-        const data = await res.json();
+        const data = unwrapEnvelope(await res.json());
         setFaculties(Array.isArray(data) ? data : []);
       } catch (e) {
         setError("Could not load faculties: " + e.message);
@@ -334,8 +334,8 @@ function AdminInviteSection({ token }) {
       try {
         const res = await fetch(`${BASE_URL}/auth/departments?faculty_id=${form.faculty_id}`);
         if (!res.ok) throw new Error("Failed to load departments");
-        const data = await res.json();
-        setDepartments(data);
+        const data = unwrapEnvelope(await res.json());
+        setDepartments(Array.isArray(data) ? data : []);
       } catch (e) {
         setError("Could not load departments: " + e.message);
       } finally {

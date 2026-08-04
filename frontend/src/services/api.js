@@ -51,6 +51,25 @@ let _bootstrapCache = { token: null, data: null, cachedAt: 0 };
 // Admin pages use api.get/post/patch/delete object pattern.
 export const BASE_URL = BASE;
 
+/**
+ * Unwrap the backend's standard response envelope ({success, data, message, error}).
+ * Any code that calls fetch() directly (instead of the api.* helpers) must run
+ * its parsed JSON through this before reading fields off it.
+ */
+export function unwrapEnvelope(raw) {
+  return (raw && typeof raw === "object" && "success" in raw && "data" in raw) ? raw.data : raw;
+}
+
+/** Extract a human-readable error message from a parsed (non-ok) JSON response. */
+export function extractErrorMessage(data, fallback = "Request failed") {
+  if (!data || typeof data !== "object") return fallback;
+  const detail = data.error
+    || (Array.isArray(data.detail)
+        ? data.detail.map(d => d.msg || d.message || JSON.stringify(d)).join("; ")
+        : data.detail);
+  return detail || fallback;
+}
+
 export class ApiError extends Error {
   constructor(message, status) {
     super(message);

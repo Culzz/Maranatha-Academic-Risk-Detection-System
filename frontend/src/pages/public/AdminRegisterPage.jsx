@@ -13,7 +13,7 @@ import {
   RefreshCw, ChevronRight,
 } from "lucide-react";
 import CustomDropdown from "../../components/ui/CustomDropdown";
-import { BASE_URL } from "../../services/api";
+import { BASE_URL, unwrapEnvelope, extractErrorMessage } from "../../services/api";
 import crest from "../../assets/maranatha-crest.png";
 
 /* ── Constants ──────────────────────────────────────────── */
@@ -246,8 +246,9 @@ export default function AdminRegisterPage() {
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(payload),
       });
-      const data = await res.json();
-      if (!res.ok) { setError(data.detail || "Registration failed."); return; }
+      const raw = await res.json();
+      if (!res.ok) { setError(extractErrorMessage(raw, "Registration failed.")); return; }
+      const data = unwrapEnvelope(raw);
       if (data.dev_otp) setDevOtp(data.dev_otp);
       setStep(2);
     } catch {
@@ -319,8 +320,9 @@ export default function AdminRegisterPage() {
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ email: form.email.trim(), otp: otpCode }),
       });
-      const data = await res.json();
-      if (!res.ok) { setOtpError(data.detail || "Verification failed. Please try again."); return; }
+      const raw = await res.json();
+      if (!res.ok) { setOtpError(extractErrorMessage(raw, "Verification failed. Please try again.")); return; }
+      const data = unwrapEnvelope(raw);
       if (data.staff_id) setStaffId(data.staff_id);
       if (data.auto_confirmed) {
         setStep(4); // Skip email confirmation — account already active
@@ -363,7 +365,7 @@ export default function AdminRegisterPage() {
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ email: form.email.trim() }),
       });
-      const data = await res.json();
+      const data = unwrapEnvelope(await res.json());
       if (data.dev_otp) setDevOtp(data.dev_otp);
     } catch {
       // Silently handle — user can try again

@@ -6,7 +6,7 @@ import { useState } from "react";
 import { useNavigate, useSearchParams } from "react-router-dom";
 import { motion } from "framer-motion";
 import { Lock, Eye, EyeOff, CheckCircle, AlertCircle, ArrowLeft, RefreshCw } from "lucide-react";
-import { BASE_URL } from "../../services/api";
+import { BASE_URL, extractErrorMessage } from "../../services/api";
 import crest from "../../assets/maranatha-crest.png";
 
 const inputCls = [
@@ -53,8 +53,7 @@ export default function ResetPasswordPage() {
         body: JSON.stringify({ token, new_password: password }),
       });
       const data = await res.json();
-      const body = data?.data ?? data;
-      if (!res.ok) throw new Error(body.detail || "Reset failed.");
+      if (!res.ok) throw new Error(extractErrorMessage(data, "Reset failed."));
       setDone(true);
     } catch (e) {
       setError(e.message || "Could not connect. Please try again.");

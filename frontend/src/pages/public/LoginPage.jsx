@@ -11,7 +11,7 @@ import {
   Mail, CheckCircle, RefreshCw, Shield,
 } from "lucide-react";
 import { useAuth } from "../../context/AuthContext";
-import { BASE_URL } from "../../services/api";
+import { BASE_URL, extractErrorMessage } from "../../services/api";
 import crest from "../../assets/maranatha-crest.png";
 
 const MAX_ATTEMPTS = 5;
@@ -49,7 +49,7 @@ function ForgotView({ onBack }) {
         body: JSON.stringify({ identifier: idVal.trim() }),
       });
       const data = await res.json();
-      if (!res.ok) throw new Error(data.detail || "Request failed.");
+      if (!res.ok) throw new Error(extractErrorMessage(data, "Request failed."));
       setStep("sent");
     } catch (e) {
       setError(e.message || "Could not connect to the server. Please try again.");
