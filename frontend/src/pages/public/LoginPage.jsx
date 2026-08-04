@@ -11,6 +11,7 @@ import {
   Mail, CheckCircle, RefreshCw, Shield,
 } from "lucide-react";
 import { useAuth } from "../../context/AuthContext";
+import { BASE_URL } from "../../services/api";
 import crest from "../../assets/maranatha-crest.png";
 
 const MAX_ATTEMPTS = 5;
@@ -42,7 +43,7 @@ function ForgotView({ onBack }) {
     if (!idVal.trim()) { setError("Please enter your Matric Number or Staff ID."); return; }
     setLoading(true); setError("");
     try {
-      const res  = await fetch("/api/auth/forgot-password", {
+      const res  = await fetch(`${BASE_URL}/auth/forgot-password`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ identifier: idVal.trim() }),
@@ -136,7 +137,7 @@ export default function LoginPage() {
       const form = new FormData();
       form.append("username", id.trim());
       form.append("password", pwd);
-      const url = rememberMe ? "/api/auth/login?remember_me=true" : "/api/auth/login";
+      const url = rememberMe ? `${BASE_URL}/auth/login?remember_me=true` : `${BASE_URL}/auth/login`;
       const res  = await fetch(url, { method: "POST", body: form });
       const data = await res.json();
       const payload = (data && data.success && data.data) ? data.data : data;

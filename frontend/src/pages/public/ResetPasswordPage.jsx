@@ -6,6 +6,7 @@ import { useState } from "react";
 import { useNavigate, useSearchParams } from "react-router-dom";
 import { motion } from "framer-motion";
 import { Lock, Eye, EyeOff, CheckCircle, AlertCircle, ArrowLeft, RefreshCw } from "lucide-react";
+import { BASE_URL } from "../../services/api";
 import crest from "../../assets/maranatha-crest.png";
 
 const inputCls = [
@@ -46,7 +47,7 @@ export default function ResetPasswordPage() {
 
     setLoading(true); setError("");
     try {
-      const res = await fetch("/api/auth/reset-password", {
+      const res = await fetch(`${BASE_URL}/auth/reset-password`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ token, new_password: password }),

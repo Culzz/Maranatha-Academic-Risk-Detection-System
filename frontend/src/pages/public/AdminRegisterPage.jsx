@@ -13,6 +13,7 @@ import {
   RefreshCw, ChevronRight,
 } from "lucide-react";
 import CustomDropdown from "../../components/ui/CustomDropdown";
+import { BASE_URL } from "../../services/api";
 import crest from "../../assets/maranatha-crest.png";
 
 /* ── Constants ──────────────────────────────────────────── */
@@ -142,7 +143,7 @@ export default function AdminRegisterPage() {
 
   /* ── Load faculties ───────────────────────────────────── */
   useEffect(() => {
-    fetch("/api/auth/admin/faculties")
+    fetch(`${BASE_URL}/auth/admin/faculties`)
       .then(r => r.json())
       .then(data => {
         if (Array.isArray(data))
@@ -154,8 +155,8 @@ export default function AdminRegisterPage() {
   /* ── Load departments (filtered by faculty when selected) ── */
   useEffect(() => {
     const url = form.faculty_id
-      ? `/api/auth/departments?faculty_id=${form.faculty_id}`
-      : "/api/auth/departments";
+      ? `${BASE_URL}/auth/departments?faculty_id=${form.faculty_id}`
+      : `${BASE_URL}/auth/departments`;
     fetch(url)
       .then(r => r.json())
       .then(data => {
@@ -240,7 +241,7 @@ export default function AdminRegisterPage() {
         faculty_id:    showFaculty ? parseInt(form.faculty_id) : null,
         department_id: showDepartment ? parseInt(form.department_id) : null,
       };
-      const res  = await fetch("/api/auth/admin/register", {
+      const res  = await fetch(`${BASE_URL}/auth/admin/register`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(payload),
@@ -313,7 +314,7 @@ export default function AdminRegisterPage() {
     setOtpError("");
 
     try {
-      const res = await fetch("/api/auth/admin/verify-otp", {
+      const res = await fetch(`${BASE_URL}/auth/admin/verify-otp`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ email: form.email.trim(), otp: otpCode }),
@@ -357,7 +358,7 @@ export default function AdminRegisterPage() {
     }, 1000);
 
     try {
-      const res = await fetch("/api/auth/admin/resend-otp", {
+      const res = await fetch(`${BASE_URL}/auth/admin/resend-otp`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ email: form.email.trim() }),

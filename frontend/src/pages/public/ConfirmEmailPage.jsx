@@ -7,6 +7,7 @@ import { useState, useEffect } from "react";
 import { motion } from "framer-motion";
 import { useNavigate, useSearchParams } from "react-router-dom";
 import { CheckCircle, XCircle, RefreshCw, LogIn } from "lucide-react";
+import { BASE_URL } from "../../services/api";
 import crest from "../../assets/maranatha-crest.png";
 
 export default function ConfirmEmailPage() {
@@ -28,7 +29,7 @@ export default function ConfirmEmailPage() {
 
     const confirmEmail = async () => {
       try {
-        const res = await fetch("/api/auth/confirm-email", {
+        const res = await fetch(`${BASE_URL}/auth/confirm-email`, {
           method: "POST",
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify({ token }),

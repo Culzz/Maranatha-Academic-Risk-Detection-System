@@ -12,6 +12,7 @@ import {
   CheckCircle, RefreshCw, ChevronRight,
 } from "lucide-react";
 import CustomDropdown from "../../components/ui/CustomDropdown";
+import { BASE_URL } from "../../services/api";
 import crest from "../../assets/maranatha-crest.png";
 
 /* -- Constants ------------------------------------------------ */
@@ -107,7 +108,7 @@ export default function LecturerRegisterPage() {
 
   // Load departments from API
   useEffect(() => {
-    fetch("/api/auth/departments")
+    fetch(`${BASE_URL}/auth/departments`)
       .then((r) => r.json())
       .then((data) => {
         if (Array.isArray(data)) setDepartments(data);
@@ -126,7 +127,7 @@ export default function LecturerRegisterPage() {
     setValidationError("");
 
     try {
-      const res = await fetch("/api/auth/lecturer/validate-email", {
+      const res = await fetch(`${BASE_URL}/auth/lecturer/validate-email`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ email: email.trim() }),
@@ -179,7 +180,7 @@ export default function LecturerRegisterPage() {
         department_id: parseInt(departmentId),
         designation,
       };
-      const res = await fetch("/api/auth/lecturer/register", {
+      const res = await fetch(`${BASE_URL}/auth/lecturer/register`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(payload),

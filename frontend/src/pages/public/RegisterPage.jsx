@@ -12,6 +12,7 @@ import {
   AlertCircle, CheckCircle, RefreshCw,
 } from "lucide-react";
 import CustomDropdown from "../../components/ui/CustomDropdown";
+import { BASE_URL } from "../../services/api";
 import crest from "../../assets/maranatha-crest.png";
 
 /* ── Constants ──────────────────────────────────────────── */
@@ -103,7 +104,7 @@ export default function RegisterPage() {
 
   // Load departments from API and clear any stale draft that has a non-existent department_id
   useEffect(() => {
-    fetch("/api/auth/departments")
+    fetch(`${BASE_URL}/auth/departments`)
       .then(r => r.json())
       .then(data => {
         if (Array.isArray(data)) {
@@ -141,7 +142,7 @@ export default function RegisterPage() {
     }
     setValidatingMatric(true); setMatricMsg({ ok: false, text: "" });
     try {
-      const res  = await fetch("/api/auth/validate-matric", {
+      const res  = await fetch(`${BASE_URL}/auth/validate-matric`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ matric_number: form.identifier.trim(), full_name: form.full_name.trim() }),
@@ -188,7 +189,7 @@ export default function RegisterPage() {
         department_id: form.department_id ? parseInt(form.department_id) : null,
         level:         form.level ? parseInt(form.level) : null,
       };
-      const res  = await fetch("/api/auth/register", {
+      const res  = await fetch(`${BASE_URL}/auth/register`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(payload),
