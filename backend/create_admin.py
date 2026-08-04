@@ -18,9 +18,9 @@ import app_models as models
 import bcrypt as _bcrypt
 
 # ── Configure your first admin here ──────────────────────────
-FULL_NAME  = "System Administrator"
-STAFF_ID   = "ADMIN/001"
-EMAIL      = "admin@maranatha.edu.ng"
+FULL_NAME  = os.environ.get("ADMIN_FULL_NAME", "System Administrator")
+STAFF_ID   = os.environ.get("ADMIN_STAFF_ID", "ADMIN/001")
+EMAIL      = os.environ.get("ADMIN_EMAIL", "admin@maranatha.edu.ng")
 PASSWORD   = os.environ.get("ADMIN_PASSWORD", "")
 # ─────────────────────────────────────────────────────────────
 
@@ -49,6 +49,7 @@ def main():
             email=EMAIL,
             password_hash=_hash(PASSWORD),
             role="admin",
+            admin_level="dap",   # top of hierarchy — required so this account can whitelist deans/HODs
             is_active=True,
         )
         db.add(admin)
