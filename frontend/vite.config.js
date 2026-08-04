@@ -102,7 +102,7 @@ export default defineConfig({
       workbox: {
         importScripts: ["/push-sw.js"],
         globPatterns: ["**/*.{js,css,html,ico,png,svg,woff,woff2}"],
-        navigateFallback: "/offline.html",
+        navigateFallback: "/index.html",
         navigateFallbackDenylist: [/^\/api/, /^\/uploads/],
         runtimeCaching: [
           {
