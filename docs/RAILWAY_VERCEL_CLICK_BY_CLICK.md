@@ -104,7 +104,10 @@ Add this only on celery-worker:
 7. Output directory: dist.
 8. Add environment variable:
    VITE_API_BASE_URL = https://your-railway-domain/api
+   Do not use Railway internal/private URLs such as *.railway.internal. Those only work between Railway services, not from the browser.
 9. Deploy.
+
+If you deploy the frontend on a different static host such as Render, add an SPA rewrite so all non-file routes serve /index.html. Without that rewrite, direct refreshes on /login, /register, or dashboard routes will fail.
 
 ## Phase 5: Final CORS wiring
 

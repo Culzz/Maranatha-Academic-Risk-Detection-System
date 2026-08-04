@@ -8,7 +8,36 @@
  *   const data = await api.risk.getForStudent(studentId, token)
  */
 
-const BASE = (import.meta.env.VITE_API_BASE_URL || "/api").replace(/\/$/, "");
+function resolveApiBaseUrl(rawValue) {
+  const fallback = "/api";
+  const raw = (rawValue || fallback).trim();
+  if (!raw) return fallback;
+
+  if (/[<>]/.test(raw)) {
+    console.warn("Ignoring invalid VITE_API_BASE_URL placeholder value.");
+    return fallback;
+  }
+
+  try {
+    const origin = typeof window !== "undefined" ? window.location.origin : "http://localhost";
+    const parsed = new URL(raw, origin);
+    if (parsed.hostname.endsWith(".railway.internal")) {
+      console.warn("Ignoring private Railway internal API host in VITE_API_BASE_URL. Use the public Railway domain instead.");
+      return fallback;
+    }
+
+    if (/^https?:\/\//i.test(raw)) {
+      return `${parsed.origin}${parsed.pathname}`.replace(/\/$/, "");
+    }
+
+    return (parsed.pathname || fallback).replace(/\/$/, "") || fallback;
+  } catch {
+    console.warn("Ignoring malformed VITE_API_BASE_URL value.");
+    return fallback;
+  }
+}
+
+const BASE = resolveApiBaseUrl(import.meta.env.VITE_API_BASE_URL);
 const DEFAULT_TIMEOUT_MS = 15000;
 const ADMIN_LONG_TIMEOUT_MS = 120000;
 const COMPUTE_TIMEOUT_MS = 180000;
