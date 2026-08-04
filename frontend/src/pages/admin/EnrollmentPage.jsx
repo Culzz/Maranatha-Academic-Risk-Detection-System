@@ -10,7 +10,7 @@ import {
   FileText, RefreshCw, Users, ChevronDown,
 } from "lucide-react";
 import { useAuth } from "../../context/AuthContext";
-import { api, apiFetch, BASE_URL } from "../../services/api";
+import { api, apiFetch, BASE_URL, unwrapEnvelope, extractErrorMessage } from "../../services/api";
 import { formatDate, formatCourseCode } from "../../utils/helpers";
 import Input from "../../components/ui/Input";
 import Button from "../../components/ui/Button";
@@ -52,9 +52,9 @@ function BulkSection({ token, onDone }) {
         headers: { Authorization: `Bearer ${token}` },
         body: form,
       });
-      const data = await res.json();
-      if (!res.ok) throw new Error(data.detail || "Upload failed");
-      setResult(data);
+      const raw = await res.json();
+      if (!res.ok) throw new Error(extractErrorMessage(raw, "Upload failed"));
+      setResult(unwrapEnvelope(raw));
       setFile(null);
       onDone?.();
     } catch (e) {

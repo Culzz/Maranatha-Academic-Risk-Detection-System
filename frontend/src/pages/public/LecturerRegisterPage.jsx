@@ -12,7 +12,7 @@ import {
   CheckCircle, RefreshCw, ChevronRight,
 } from "lucide-react";
 import CustomDropdown from "../../components/ui/CustomDropdown";
-import { BASE_URL } from "../../services/api";
+import { BASE_URL, unwrapEnvelope, extractErrorMessage } from "../../services/api";
 import crest from "../../assets/maranatha-crest.png";
 
 /* -- Constants ------------------------------------------------ */
@@ -132,10 +132,11 @@ export default function LecturerRegisterPage() {
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ email: email.trim() }),
       });
-      const data = await res.json();
+      const raw = await res.json();
       if (!res.ok) {
-        throw new Error(data.detail || "Email not found in lecturer whitelist.");
+        throw new Error(extractErrorMessage(raw, "Email not found in lecturer whitelist."));
       }
+      const data = unwrapEnvelope(raw);
       // Successful validation — auto-fill and advance
       setStaffId(data.staff_id || "");
       setFullName(data.full_name || "");
@@ -185,11 +186,12 @@ export default function LecturerRegisterPage() {
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(payload),
       });
-      const data = await res.json();
+      const raw = await res.json();
       if (!res.ok) {
-        setError(data.detail || "Registration failed.");
+        setError(extractErrorMessage(raw, "Registration failed."));
         return;
       }
+      const data = unwrapEnvelope(raw);
       if (data.auto_confirmed) {
         // Dev mode: account already active — show success with staff ID
         setStaffId(data.staff_id || staffId);

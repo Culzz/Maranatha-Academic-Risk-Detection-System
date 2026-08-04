@@ -12,7 +12,7 @@ import {
   AlertCircle, CheckCircle, RefreshCw,
 } from "lucide-react";
 import CustomDropdown from "../../components/ui/CustomDropdown";
-import { BASE_URL } from "../../services/api";
+import { BASE_URL, unwrapEnvelope, extractErrorMessage } from "../../services/api";
 import crest from "../../assets/maranatha-crest.png";
 
 /* ── Constants ──────────────────────────────────────────── */
@@ -147,8 +147,8 @@ export default function RegisterPage() {
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ matric_number: form.identifier.trim(), full_name: form.full_name.trim() }),
       });
-      const data = await res.json();
-      if (!res.ok) throw new Error(data.detail || "Matric not found in whitelist.");
+      const raw = await res.json();
+      if (!res.ok) throw new Error(extractErrorMessage(raw, "Matric not found in whitelist."));
       setMatricValidated(true);
       setMatricMsg({ ok: true, text: "Matric number verified in university whitelist." });
     } catch (e) {
@@ -195,8 +195,9 @@ export default function RegisterPage() {
         body: JSON.stringify(payload),
         signal: abortRef.current.signal,
       });
-      const data = await res.json();
-      if (!res.ok) { setError(data.detail || "Registration failed."); return; }
+      const raw = await res.json();
+      if (!res.ok) { setError(extractErrorMessage(raw, "Registration failed.")); return; }
+      const data = unwrapEnvelope(raw);
       localStorage.removeItem(DRAFT_KEY);
       setSuccess(true);
       if (data.auto_confirmed) {
