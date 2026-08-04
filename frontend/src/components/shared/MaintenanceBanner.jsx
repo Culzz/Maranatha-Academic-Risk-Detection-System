@@ -6,13 +6,14 @@
 import { useState, useEffect } from "react";
 import { AlertTriangle } from "lucide-react";
 import { useAuth } from "../../context/AuthContext";
+import { BASE_URL } from "../../services/api";
 
 export default function MaintenanceBanner() {
   const { user } = useAuth();
   const [maintenance, setMaintenance] = useState(false);
 
   useEffect(() => {
-    fetch("/api/admin/settings/public")
+    fetch(`${BASE_URL}/admin/settings/public`)
       .then(r => r.json())
       .then(data => {
         if (data.maintenance_mode === "true" || data.maintenance_mode === true) {
