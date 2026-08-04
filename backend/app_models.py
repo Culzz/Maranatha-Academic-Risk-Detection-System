@@ -114,7 +114,7 @@ class AcademicSession(Base):
     __tablename__ = "academic_sessions"
 
     id            = Column(Integer, primary_key=True, index=True)
-    session_label = Column(String(20), nullable=False, unique=True)
+    session_label = Column(String(50), nullable=False, unique=True)
     semester      = Column(Integer, nullable=False)
     start_date    = Column(Date, nullable=False)
     end_date      = Column(Date, nullable=False)
