@@ -172,7 +172,10 @@ export default function AssignmentsPage() {
   const fetchAssignments = async () => {
     setLoading(true);
     setError("");
-    try { setAssignments(await studentsApi.getAssignments(token)); }
+    try {
+      const data = await studentsApi.getAssignments(token);
+      setAssignments(Array.isArray(data) ? data : []);
+    }
     catch (e) { setError(e.message || "Failed to load assignments."); }
     finally { setLoading(false); }
   };

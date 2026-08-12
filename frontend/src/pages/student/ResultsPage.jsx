@@ -805,7 +805,7 @@ function ResultSlipView({ result, user, token, onBack }) {
                           {idx + 1}
                         </td>
                         <td className="px-3 py-2.5 font-semibold text-slate-700">
-                          {cr.course_code.replace(/^([A-Z]+)(\d)/, "$1 $2")}
+                          {(cr.course_code || "").replace(/^([A-Z]+)(\d)/, "$1 $2")}
                         </td>
                         <td className="px-3 py-2.5 text-slate-600">
                           {cr.course_title || "--"}

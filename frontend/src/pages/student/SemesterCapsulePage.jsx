@@ -118,7 +118,7 @@ export default function SemesterCapsulePage() {
               <XAxis dataKey="week" tick={{ fontSize: 11 }} label={{ value: "Week", position: "insideBottom", offset: -3, fontSize: 11 }} />
               <YAxis domain={[0, 1]} tick={{ fontSize: 11 }} />
               <Tooltip
-                formatter={(v, name) => [v.toFixed(3), "Risk Prob."]}
+                formatter={(v, name) => [v?.toFixed(3) ?? "—", "Risk Prob."]}
                 labelFormatter={w => `Week ${w}`}
               />
               <Line
