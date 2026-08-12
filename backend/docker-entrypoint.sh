@@ -7,6 +7,8 @@ if [ "${RUN_MIGRATIONS:-true}" = "true" ]; then
   python -c "from database import Base, engine; Base.metadata.create_all(bind=engine)"
   echo "[entrypoint] Stamping alembic to head (schema already matches current models)..."
   alembic stamp head
+  echo "[entrypoint] Applying performance indexes (idempotent)..."
+  python migrations/add_missing_indexes.py
 fi
 
 WORKERS="${UVICORN_WORKERS:-2}"
