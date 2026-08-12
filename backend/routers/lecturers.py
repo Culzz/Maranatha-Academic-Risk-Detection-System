@@ -277,7 +277,7 @@ def get_lecturer_overview(
     pending_rows = db.query(models.Intervention).filter(
         models.Intervention.course_id.in_(course_ids),
         models.Intervention.status == "pending",
-        models.Intervention.created_at <= cutoff,
+        models.Intervention.recommended_at <= cutoff,
     ).order_by(models.Intervention.created_at.asc()).limit(5).all()
     pending_student_ids = {row.student_id for row in pending_rows}
     pending_students = db.query(models.User).filter(
@@ -1106,7 +1106,7 @@ def get_pending_interventions(
     pending = db.query(models.Intervention).filter(
         models.Intervention.course_id.in_(course_ids),
         models.Intervention.status == "pending",
-        models.Intervention.created_at <= cutoff,
+        models.Intervention.recommended_at <= cutoff,
     ).order_by(models.Intervention.created_at.asc()).limit(5).all()
 
     results = []
