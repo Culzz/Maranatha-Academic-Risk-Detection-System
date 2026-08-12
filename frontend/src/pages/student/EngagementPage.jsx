@@ -132,7 +132,7 @@ function ShapRow({ feature, value, maxVal, delay, tooltip }) {
         />
       </div>
       <span className="text-xs font-bold w-12 text-right flex-shrink-0" style={{ color }}>
-        {isRisk ? "+" : ""}{value.toFixed(2)}
+        {isRisk ? "+" : ""}{(value ?? 0).toFixed(2)}
       </span>
       <span className="text-xs text-slate-400 w-16 text-right flex-shrink-0 capitalize">{label}</span>
     </motion.div>
@@ -318,6 +318,7 @@ export default function EngagementPage() {
     help_seeking_ratio: -(fs.help_seeking_ratio ?? 0),
     sgpa: -(fs.sgpa ?? 2.5) / 5,
     sgpa_delta: -(fs.sgpa_delta ?? 0),
+    note_taking_frequency: -(fs.note_taking_frequency ?? 0),
   };
   const shapEntries = FACTOR_KEYS.map((key) => {
     const raw = shapSource[key];
