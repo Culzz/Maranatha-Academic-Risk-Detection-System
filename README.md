@@ -29,6 +29,7 @@ MARDS addresses this gap directly. It monitors behavioural and academic signals 
 ## Key Features
 
 - **Four portals** — Student, Lecturer, Admin, and Public views (76 pages) with role-based access
+- **Offline-first PWA** — installs on phones and keeps working on low bandwidth, built for real campus network conditions
 - **Explainable predictions** — every risk score ships with SHAP feature attributions, so lecturers see *why* a student was flagged
 - **Compassionate risk labelling** — student-facing labels avoid stigmatising language ("Needs Extra Support", "Monitor Closely", "On Track")
 - **Real-time updates** — Server-Sent Events push risk and intervention changes to open dashboards instantly
@@ -168,6 +169,7 @@ Maranatha-Academic-Risk-Detection-System/
 | Document | Purpose |
 |---|---|
 | [docs/ARCHITECTURE.md](docs/ARCHITECTURE.md) | System design, component breakdown, and data flow |
+| [docs/ADOPTION.md](docs/ADOPTION.md) | Adoption guide for universities — rollout, privacy, costs (non-technical readers) |
 | [docs/API.md](docs/API.md) | Complete endpoint reference — auth flows, request/response payloads |
 | [docs/RISK_ENGINE.md](docs/RISK_ENGINE.md) | ML pipeline, 24-feature schema, model training, SHAP explainability |
 | [docs/AI_INTEGRATION.md](docs/AI_INTEGRATION.md) | Claude AI feature integration, prompt design, and fallback behaviour |
@@ -179,7 +181,34 @@ Maranatha-Academic-Risk-Detection-System/
 
 ---
 
-## Quickstart (Development)
+## Quickstart
+
+### Option A — Docker Compose (recommended)
+
+One command builds and wires the database, cache, backend, Celery worker/beat, and frontend:
+
+```bash
+docker compose up -d --build
+```
+
+Then seed the database (each script depends on the previous):
+
+```bash
+docker compose exec backend python seed_data.py
+docker compose exec backend python seed_wave4.py
+docker compose exec backend python seed_settings.py
+docker compose exec backend python seed_risk.py
+```
+
+| Interface | URL |
+|---|---|
+| Frontend application | http://localhost |
+| FastAPI interactive docs | http://localhost:8000/docs |
+
+> See `docs/DEPLOYMENT.md` for test credentials and role-based access setup. Considering a real
+> deployment at your institution? Read [docs/ADOPTION.md](docs/ADOPTION.md).
+
+### Option B — Manual setup
 
 ### Prerequisites
 
