@@ -152,7 +152,7 @@ REDIS_URL=redis://127.0.0.1:6379/0
 # Generate keys with: python -c "from py_vapid import Vapid; v = Vapid(); v.generate_keys(); print(v.private_key_urlsafe, v.public_key_urlsafe)"
 VAPID_PRIVATE_KEY=your-vapid-private-key
 VAPID_PUBLIC_KEY=your-vapid-public-key
-VAPID_CLAIMS_EMAIL=mailto:admin@maranatha.edu.ng
+VAPID_CLAIM_EMAIL=mailto:admin@maranatha.edu.ng
 ```
 
 If `VAPID_PRIVATE_KEY` or `VAPID_PUBLIC_KEY` are absent, the backend emits a startup warning and push notifications are silently disabled. All other functionality is unaffected.
@@ -563,5 +563,5 @@ python -c "from ml.ml_pipeline_v2 import retrain_from_db; retrain_from_db()"
 | AI features not working | Verify `ANTHROPIC_API_KEY` is set and starts with `sk-ant-` |
 | Static files 404 | Rebuild frontend: `cd frontend && npm run build` |
 | SSE not connecting | Check Nginx `proxy_buffering off` is set for `/api/` location |
-| Push notifications not delivered | Verify `VAPID_PRIVATE_KEY`, `VAPID_PUBLIC_KEY`, and `VAPID_CLAIMS_EMAIL` are set in .env |
+| Push notifications not delivered | Verify `VAPID_PRIVATE_KEY`, `VAPID_PUBLIC_KEY`, and `VAPID_CLAIM_EMAIL` are set in .env |
 | Alembic migration error | Run `alembic current` to check state; resolve conflicts before `alembic upgrade head` |

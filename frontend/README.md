@@ -2,7 +2,7 @@
 
 ## Overview
 
-React 18 single-page application built with Vite 4. The application has 55+ pages split across three role-based dashboards (student, lecturer, admin). All dashboards are lazy-loaded and code-split to reduce initial bundle size. Tailwind CSS handles utility styling. Framer Motion handles animations. The application is PWA-capable with a Workbox-generated service worker, offline fallback, background sync, and push notification support. Real-time updates are delivered via a single persistent SSE connection managed by `RealtimeContext`.
+React 18 single-page application built with Vite 4. The application has 76 pages split across three role-based dashboards (student, lecturer, admin) plus public routes. All dashboards are lazy-loaded and code-split to reduce initial bundle size. Tailwind CSS handles utility styling. Framer Motion handles animations. The application is PWA-capable with a Workbox-generated service worker, offline fallback, background sync, and push notification support. Real-time updates are delivered via a single persistent SSE connection managed by `RealtimeContext`.
 
 ---
 

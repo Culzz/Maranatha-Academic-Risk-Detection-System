@@ -1,5 +1,11 @@
 # MARDS — Maranatha Academic Risk Detection System
 
+[![CI](https://github.com/Culzz/Maranatha-Academic-Risk-Detection-System/actions/workflows/ci.yml/badge.svg)](https://github.com/Culzz/Maranatha-Academic-Risk-Detection-System/actions/workflows/ci.yml)
+[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE)
+[![Python 3.11](https://img.shields.io/badge/python-3.11-blue.svg)](https://www.python.org/downloads/)
+[![FastAPI](https://img.shields.io/badge/FastAPI-0.135-009688.svg)](https://fastapi.tiangolo.com/)
+[![React 18](https://img.shields.io/badge/react-18-61dafb.svg)](https://react.dev/)
+
 > A production-grade ML system for early identification of at-risk students — XGBoost + SHAP explainability + FastAPI backend + React PWA, built for a Nigerian private university context.
 
 ---
@@ -16,7 +22,20 @@ Built as the first production AI system deployed at Maranatha University, Okota,
 
 In most Nigerian private universities, academic monitoring is reactive. Students are flagged only after end-of-semester results are published, by which point carry-overs, academic probation, or dropout may already be unavoidable. No continuous signal exists between admission and results.
 
-MARDS addresses this gap directly. It monitors behavioural and academic signals throughout the semester, attendance, platform engagement, assignment completion, quiz performance, mood and identifies at-risk students while there is still time to intervene. It is designed for full university deployment across three distinct user roles, with real-time notifications and an AI tutoring layer built in.
+MARDS addresses this gap directly. It monitors behavioural and academic signals throughout the semester — attendance, platform engagement, assignment completion, quiz performance, mood — and identifies at-risk students while there is still time to intervene. It is designed for full university deployment across three distinct user roles, with real-time notifications and an AI tutoring layer built in.
+
+---
+
+## Key Features
+
+- **Four portals** — Student, Lecturer, Admin, and Public views (76 pages) with role-based access
+- **Explainable predictions** — every risk score ships with SHAP feature attributions, so lecturers see *why* a student was flagged
+- **Compassionate risk labelling** — student-facing labels avoid stigmatising language ("Needs Extra Support", "Monitor Closely", "On Track")
+- **Real-time updates** — Server-Sent Events push risk and intervention changes to open dashboards instantly
+- **AI tutoring layer** — Claude Sonnet assistant with a circuit breaker for graceful degradation
+- **Scheduled intelligence** — Celery Beat runs 14 jobs: risk recomputation, reminders, digests, escalation
+- **Security hardening** — JWT + refresh rotation, bcrypt, MFA, rate limiting, account lockout, PII-scrubbed logs
+- **QR attendance** — HMAC-signed QR check-ins with attendance-trend features feeding the model
 
 ---
 
@@ -60,7 +79,7 @@ MARDS addresses this gap directly. It monitors behavioural and academic signals 
 
 **Frontend** — React 18 PWA, 75+ pages across four portals (Student / Lecturer / Admin / Public), Server-Sent Events for real-time updates, 195KB initial bundle (gzipped).
 
-**ML Pipeline** — XGBoost v5.1.0 classifier trained on 1,330 synthetic student records across 22 departments and 6 behavioural archetypes, 24 engineered features, SHAP TreeExplainer for per-student prediction transparency.
+**ML Pipeline** — XGBoost 3.2.0 classifier trained on 1,330 synthetic student records across 22 departments and 6 behavioural archetypes, 24 engineered features, SHAP TreeExplainer for per-student prediction transparency.
 
 **AI Tutor** — Claude Sonnet integration with 40k character context window and circuit breaker (5-failure threshold, 60s cooldown).
 
@@ -129,12 +148,15 @@ MARDS uses compassionate, non-stigmatising language for all student-facing risk 
 ## Repository Layout
 
 ```
-maranatha_risk_system/
+Maranatha-Academic-Risk-Detection-System/
 ├── backend/            # FastAPI application (Python 3.11)
 ├── frontend/           # React 18 + Vite 4 SPA
 ├── ml/                 # XGBoost training pipeline and model artifacts
+├── database/           # Incremental SQL schema migrations
 ├── docs/               # Full technical documentation
-├── scripts/            # Seed and utility scripts
+├── deploy/             # Reverse-proxy configuration
+├── scripts/            # Backup and deployment helpers
+├── redis/              # Redis binaries for local development
 ├── requirements.txt    # Python dependencies
 └── docker-compose.yml
 ```
@@ -145,15 +167,15 @@ maranatha_risk_system/
 
 | Document | Purpose |
 |---|---|
-| `docs/ARCHITECTURE.md` | System design, component breakdown, and data flow |
-| `docs/API.md` | Complete endpoint reference — auth flows, request/response payloads |
-| `docs/RISK_ENGINE.md` | ML pipeline, 24-feature schema, model training, SHAP explainability |
-| `docs/AI_INTEGRATION.md` | Claude AI feature integration, prompt design, and fallback behaviour |
-| `docs/DEPLOYMENT.md` | Dev setup, production deployment, Nginx configuration, Celery setup |
-| `docs/RUNBOOKS.md` | Operational procedures for 10 defined failure scenarios |
-| `backend/README.md` | Backend internals, route modules, ORM model index |
-| `frontend/README.md` | Frontend page inventory, component conventions, build configuration |
-| `ml/README.md` | Model training scripts, feature engineering, retraining instructions |
+| [docs/ARCHITECTURE.md](docs/ARCHITECTURE.md) | System design, component breakdown, and data flow |
+| [docs/API.md](docs/API.md) | Complete endpoint reference — auth flows, request/response payloads |
+| [docs/RISK_ENGINE.md](docs/RISK_ENGINE.md) | ML pipeline, 24-feature schema, model training, SHAP explainability |
+| [docs/AI_INTEGRATION.md](docs/AI_INTEGRATION.md) | Claude AI feature integration, prompt design, and fallback behaviour |
+| [docs/DEPLOYMENT.md](docs/DEPLOYMENT.md) | Dev setup, production deployment, Nginx configuration, Celery setup |
+| [docs/RUNBOOKS.md](docs/RUNBOOKS.md) | Operational procedures for 10 defined failure scenarios |
+| [backend/README.md](backend/README.md) | Backend internals, route modules, ORM model index |
+| [frontend/README.md](frontend/README.md) | Frontend page inventory, component conventions, build configuration |
+| [ml/README.md](ml/README.md) | Model training scripts, feature engineering, retraining instructions |
 
 ---
 
@@ -177,6 +199,7 @@ pip install -r requirements.txt
 # Frontend dependencies
 cd frontend
 npm install
+cd ..
 ```
 
 ### 2. Configure environment
@@ -189,8 +212,10 @@ SECRET_KEY=<64-char random string>
 ANTHROPIC_API_KEY=<your Anthropic API key>
 VAPID_PRIVATE_KEY=<VAPID private key>
 VAPID_PUBLIC_KEY=<VAPID public key>
-VAPID_CLAIMS_EMAIL=admin@example.com
+VAPID_CLAIM_EMAIL=admin@example.com
 ```
+
+See `backend/.env.example` for the full list of supported variables.
 
 ### 3. Seed the database
 
@@ -206,7 +231,7 @@ python seed_risk.py      # Balanced risk scores
 
 ### 4. Start services
 
-Open four terminals:
+Open four terminals (a fifth, optional one runs Celery Beat):
 
 ```bash
 # Terminal 1 — Redis
@@ -251,7 +276,7 @@ celery -A celery_app beat -l info
 | Backend framework | FastAPI (Python 3.11) |
 | Database | PostgreSQL 15, SQLAlchemy ORM |
 | Cache / Queue | Redis 5, Celery 5.6 (14 Beat jobs) |
-| ML engine | XGBoost v5.1.0, SMOTE, SHAP TreeExplainer |
+| ML engine | XGBoost 3.2.0, SMOTE, SHAP TreeExplainer |
 | AI | Anthropic Claude Sonnet |
 | Real-time | SSE via sse-starlette + WebSocket + Redis pub/sub |
 | Push notifications | VAPID via web-push, Workbox service worker |
@@ -285,10 +310,10 @@ MARDS is, to the author's knowledge, the first production-grade AI-powered Early
 BSc Computer Science · Maranatha University · Class of 2026
 Matric No: 22/CSC/007
 
-[LinkedIn](#) · [Portfolio](#) · [Email](#)
+[Omechechima@gmail.com](mailto:Omechechima@gmail.com) · [github.com/Culzz](https://github.com/Culzz)
 
 ---
 
 ## License
 
-MIT License — see `LICENSE` for details.
+MIT License — see [LICENSE](LICENSE) for details.

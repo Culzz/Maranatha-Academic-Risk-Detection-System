@@ -13,7 +13,7 @@ This directory contains the full technical documentation for the Maranatha Risk 
 | [RISK_ENGINE.md](RISK_ENGINE.md) | ML pipeline, 24-feature schema, model training, SHAP explainability | Data scientists, Developers |
 | [AI_INTEGRATION.md](AI_INTEGRATION.md) | Claude AI features, prompt design, context window strategy, fallbacks | Developers |
 | [DEPLOYMENT.md](DEPLOYMENT.md) | Dev setup, production deployment, Nginx configuration, Celery setup | DevOps, Developers |
-| [RUNBOOKS.md](RUNBOOKS.md) | Operational procedures for 8 defined failure scenarios | Ops, Developers |
+| [RUNBOOKS.md](RUNBOOKS.md) | Operational procedures for 10 defined failure scenarios | Ops, Developers |
 
 ---
 

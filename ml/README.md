@@ -2,9 +2,9 @@
 
 ## Overview
 
-XGBoost binary classifier (v4.0.0) predicting whether a student is academically at risk. The model is trained on 24 behavioural and academic features extracted from database records. The training set consists of 1,330 synthetic student-session records with SMOTE applied to balance class distribution. The trained model is loaded into memory by `ml_service.py` on backend startup and serves predictions synchronously. SHAP `TreeExplainer` provides per-prediction feature attributions for interpretability.
+XGBoost binary classifier (v3.2.0 — pinned in `requirements.txt`) predicting whether a student is academically at risk. The model is trained on 24 behavioural and academic features extracted from database records. The training set consists of 1,330 synthetic student-session records with SMOTE applied to balance class distribution. The trained model is loaded into memory by `ml_service.py` on backend startup and serves predictions synchronously. SHAP `TreeExplainer` provides per-prediction feature attributions for interpretability.
 
-Model accuracy: 0.997 (cross-validated). F1 on the Not-Graduate-Suitable class: 0.980. Top feature by importance: SGPA (gain share 0.521).
+Holdout accuracy: 0.9519. F1 on the NGS (not-in-good-standing) class: 0.7895. Top feature by importance: SGPA (gain share 0.192). Full metrics in `outputs/model_evaluation_results.json`.
 
 ---
 
@@ -131,7 +131,7 @@ Each call to `ml_service.predict()` returns a dict with four fields:
 
 | Field | Type | Description |
 |-------|------|-------------|
-| `risk_score` | float [0.0–1.0] | Probability that the student is Not-Graduate-Suitable. Higher = more risk. |
+| `risk_score` | float [0.0–1.0] | Probability that the student is in the NGS (not-in-good-standing) class. Higher = more risk. |
 | `risk_tier` | string | Bucketed label: `high_risk`, `at_risk`, or `on_track` |
 | `shap_values` | dict | Maps each feature name to its Shapley value. Positive values increase predicted risk; negative values decrease it. |
 | `student_state` | string | One of: `CRITICAL`, `STRUGGLING`, `STABLE`, `IMPROVING`, `RECOVERING`, `THRIVING` — assigned by the Student State Engine (`classify_student_state()`) based on risk score trajectory and feature signals. |

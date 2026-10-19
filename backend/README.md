@@ -118,7 +118,7 @@ Refresh tokens are stored in the database, rotated on every use, and blacklisted
 | `ANTHROPIC_API_KEY` | Enables Claude AI features (tutor, quiz generation, interventions) |
 | `VAPID_PRIVATE_KEY` | Signs outgoing push notification payloads |
 | `VAPID_PUBLIC_KEY` | Sent to browsers for push subscription |
-| `VAPID_CLAIMS_EMAIL` | Contact email embedded in VAPID assertions |
+| `VAPID_CLAIM_EMAIL` | Contact email embedded in VAPID assertions |
 | `DEBUG` | Set to `False` in production — controls error detail exposure |
 
 The application will log a startup warning if `VAPID_*` keys are absent but will still start. Missing `DATABASE_URL`, `SECRET_KEY`, or `REDIS_URL` causes an immediate startup failure.
