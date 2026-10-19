@@ -1,8 +1,13 @@
 # Environment
 .env
 .env.*
+!.env.example
+!backend/.env.example
 *.env
 backend/.env
+
+# Archive artifacts (zip exports of source folders must not be committed)
+*.zip
 
 # Local editor / agent files
 .claude/
