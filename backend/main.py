@@ -10,7 +10,7 @@ configures CORS for the React frontend, and defines the application
 lifecycle events. All business logic lives in the routers package.
 
 Run with:
-    uvicorn main:app --reload --port 8000
+    uvicorn main:app --reload --port 8011
 """
 
 import os

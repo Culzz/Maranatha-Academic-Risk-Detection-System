@@ -1,3 +1,6 @@
-#\!/bin/bash
-cd /c/Users/hp/Desktop/maranatha_risk_system/backend
-/c/Users/hp/Desktop/maranatha_risk_system/venv/Scripts/python.exe -m uvicorn main:app --host 0.0.0.0 --port 8011 --reload
+#!/usr/bin/env bash
+# Start the MARDS backend dev server (uvicorn, auto-reload on port 8011).
+# Assumes an activated Python virtualenv — see README Quickstart.
+set -euo pipefail
+cd "$(dirname "$0")/backend"
+python -m uvicorn main:app --host 0.0.0.0 --port 8011 --reload
